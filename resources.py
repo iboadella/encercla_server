@@ -1,13 +1,14 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
-from models import UserModel
-parser = reqparse.RequestParser()
-parser.add_argument('username', help = 'This field cannot be blank', required = True)
-parser.add_argument('password', help = 'This field cannot be blank', required = True)
+from models import UserModel,QuestionModel
 
-
+from flask import Flask, jsonify, request
 class UserRegistration(Resource):
     def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+        parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
         data = parser.parse_args()
         if UserModel.find_by_username(data['username']):
                   return {'message': 'User {} already exists'. format(data['username'])}
@@ -30,6 +31,10 @@ class UserRegistration(Resource):
 
 class UserLogin(Resource):
     def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+        parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
         data = parser.parse_args()
         current_user = UserModel.find_by_username(data['username'])
         if not current_user:
@@ -74,3 +79,20 @@ class SecretResource(Resource):
         return {
             'answer': 42
         }
+class Questions(Resource):
+    def get(self):
+        questions= QuestionModel.find_all()
+        if (len(questions)==0):
+            return {'message':'empty'}
+        else:
+            return {'message':'full'}
+    def post(self):
+        
+        parser = reqparse.RequestParser()
+        json_data = request.get_json(force=True)
+        
+        data = parser.parse_args()
+        return {json_data}
+        
+        
+

@@ -21,3 +21,21 @@ class UserModel(db.Model):
     @staticmethod
     def verify_hash(password, hash):
         return sha256.verify(password, hash)
+
+class QuestionModel(db.Model):
+    __tablename__ = 'questions'
+
+    id = db.Column(db.Integer, primary_key = True)
+    question1 = db.Column(db.String(120), nullable = False)
+    question2 = db.Column(db.String(120), nullable = False)
+    question3 = db.Column(db.String(120), nullable = False)
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first()    
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()    
