@@ -81,11 +81,16 @@ class SecretResource(Resource):
         }
 class Questions(Resource):
     def get(self):
+        results=[]
         questions= QuestionModel.find_all()
         if (len(questions)==0):
-            return {'message':'empty'}
+            return {'data':[]}
         else:
-            return {'message':'full'}
+             #return jsonify(json_list = questions)
+             for item in questions:
+                 results.append({"id":item.id,"q1":item.question1,"q2":item.question2,"q3":item.question3})
+             
+             return {'data':results}
     def post(self):
         
         parser = reqparse.RequestParser()
