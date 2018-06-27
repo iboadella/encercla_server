@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
-from models import UserModel,QuestionModel
+from models import UserModel,QuestionModel,SurveyModel
 
 from flask import Flask, jsonify, request
 class UserRegistration(Resource):
@@ -99,5 +99,31 @@ class Questions(Resource):
         data = parser.parse_args()
         return {json_data}
         
+class Survey(Resource):
+     def get(self,id):
+        results=[]
+        survey= SurveyModel.find_by_id(id)
+        if (survey==None):
+            return {'data':[]}
+        else:
+             #return jsonify(json_list = questions)
+             return {"id":survery.id,"sector":survey.sector,"subsector":survey.subsector,"questions":survey.questions}
+     def post(self):
         
-
+        data = request.get_json(force=True)
+        
+        import pdb
+        pdb.set_trace()
+        new_survey = SurveyModel(
+            name = data['name'],
+            sector = data['sector'],
+            subsector = data['subsector'],
+            questions = data['questions']
+        )
+        try:
+            new_survey.save_to_db()          
+            return {
+                'message': 'Survery {} was created'.format( data['name'])
+            }              
+        except:
+           return {'message': 'Something went wrong'}, 500

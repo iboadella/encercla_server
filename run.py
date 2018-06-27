@@ -33,3 +33,4 @@ api.add_resource(resources.AllUsers, '/users')
 api.add_resource(resources.SecretResource, '/secret')
 
 api.add_resource(resources.Questions, '/questions')
+api.add_resource(resources.Survey,'/survey', '/survey/<id>')

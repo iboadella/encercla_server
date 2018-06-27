@@ -38,4 +38,23 @@ class QuestionModel(db.Model):
         return cls.query.filter_by(id = id).first()    
     @classmethod
     def find_all(cls):
-        return cls.query.all()    
+        return cls.query.all() 
+class SurveyModel(db.Model):
+    __tablename__ = 'survey'
+    
+    id = db.Column(db.Integer, primary_key = True)     
+    name = db.Column(db.String(120), nullable = False)
+    sector = db.Column(db.String(50),nullable=False)
+    subsector= db.Column(db.String(50), nullable=True)
+    questions= db.Column(db.String(100),nullable=True)
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first()    
+    @classmethod
+    def find_all(cls):
+        return cls.query.all() 
+
+
