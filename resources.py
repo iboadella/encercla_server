@@ -88,7 +88,7 @@ class Questions(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in questions:
-                 results.append({"id":item.id,"q1":item.question1,"q2":item.question2,"q3":item.question3})
+                 results.append({"id":item.id,"statement": item.statement ,"q1":item.ld_option_1,"q2":item.ld_option_2,"q3":item.ld_option_3})
              
              return {'data':results}
     def post(self):
@@ -127,3 +127,25 @@ class Survey(Resource):
             }              
         except:
            return {'message': 'Something went wrong'}, 500
+import csv
+class loadDataQuestion(Resource):
+
+    def get(self):
+        tsvin1 = open('/home/ericanoanira/projects/data.csv', 'rt')
+        tsvin2 = csv.reader(tsvin1, delimiter='\t')
+        for row in tsvin2:
+            new_question = QuestionModel(
+                statement=row[1],
+                strategy=row[0],
+                ld_option_1=row[2],
+                ld_option_2=row[3],
+                ld_option_3=row[4],
+                ld_option_4=row[5],
+                futurible=True,
+                more_information=row[6],
+                )
+            new_question.save_to_db()
+
+
+         
+          

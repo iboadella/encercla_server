@@ -1,12 +1,14 @@
-from flask import Flask
+from flask import Flask,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 #https://github.com/oleg-agapov/flask-jwt-auth
 
-app = Flask(__name__)
-
+app = Flask(__name__,static_url_path='')
+@app.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory('static', path)
 
 api = Api(app)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -33,4 +35,5 @@ api.add_resource(resources.AllUsers, '/users')
 api.add_resource(resources.SecretResource, '/secret')
 
 api.add_resource(resources.Questions, '/questions')
+api.add_resource(resources.loadDataQuestion, '/Loadquestions')
 api.add_resource(resources.Survey,'/survey', '/survey/<id>')
