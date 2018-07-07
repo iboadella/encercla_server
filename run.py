@@ -24,7 +24,7 @@ db = SQLAlchemy(app)
 @app.before_first_request
 def create_tables():
     db.create_all()
-import views, models, resources
+import views, models, resources, apis
 
 api.add_resource(resources.UserRegistration, '/registration')
 api.add_resource(resources.CompanyRegistration, '/registrationcompany')
@@ -40,3 +40,6 @@ api.add_resource(resources.loadDataQuestion, '/Loadquestions')
 api.add_resource(resources.Survey,'/survey', '/survey/<id>')
 
 api.add_resource(resources.specificsurvey, '/specificsurvey')
+api.add_resource(apis.SectorList, '/sectors')
+api.add_resource(apis.Company, '/company/<company_id>')
+api.add_resource(apis.SurveyCompany, '/companysurvey')

@@ -84,7 +84,7 @@ class UserLogin(Resource):
         if UserModel.verify_hash(data['password'], current_user.password):
              access_token = create_access_token(identity = data['username'])
              refresh_token = create_refresh_token(identity = data['username'])
-             return {'message': 'Logged in as {}'.format(current_user.username),
+             return {'message': 'Logged in as {}'.format(current_user.email),
                 'access_token': access_token,
                 'refresh_token': refresh_token
              }
@@ -142,6 +142,7 @@ class SecretResource(Resource):
             'answer': 42
         }
 class Questions(Resource):
+    @jwt_required
     def get(self):
         results=[]
         questions= QuestionModel.find_all()
@@ -170,12 +171,22 @@ class Survey(Resource):
         else:
              #return jsonify(json_list = questions)
              return {"id":survery.id,"sector":survey.sector,"subsector":survey.subsector,"questions":survey.questions}
+     def get(self):
+        user=UserModel.find_by_username(email="davide@gmail.com")
+        company=CompanyModel.find_by_id(id=user.id_company)
+        
+        results=[]
+        survey= SurveyModel.find_by_sector(company.sector,company.subsector)
+        if (survey==None):
+            return {'data':[]}
+        else:
+             #return jsonify(json_list = questions)
+             return {"id":survey.id,"sector":survey.sector,"subsector":survey.subsector,"questions":survey.questions}
      def post(self):
         
         data = request.get_json(force=True)
         
-        import pdb
-        pdb.set_trace()
+
         new_survey = SurveyModel(
             name = data['name'],
             sector = data['sector'],
@@ -221,5 +232,11 @@ class specificsurvey(Resource):
                 )
             new_question.save_to_db()
 
+class TokenRefresh(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        current_user = get_jwt_identity()
+        access_token = create_access_token(identity = current_user)
+        return {'access_token': access_token}
          
           

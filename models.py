@@ -59,9 +59,7 @@ class CompanyModel(db.Model):
     @classmethod
     def find_by_nif(cls, nif):
         return cls.query.filter_by(nif = nif).first()
-    @staticmethod
-    def verify_hash(password, hash):
-        return sha256.verify(password, hash)
+
 
 class QuestionModel(db.Model):
     __tablename__ = 'questions'
@@ -97,9 +95,38 @@ class SurveyModel(db.Model):
         db.session.commit()
     @classmethod
     def find_by_id(cls, id):
-        return cls.query.filter_by(id = id).first()    
+        return cls.query.filter_by(id = id).first()  
+    @classmethod
+    def find_by_sector(cls, sector,subsector):
+        return cls.query.filter_by(sector = sector).filter_by(subsector = subsector).first()  
     @classmethod
     def find_all(cls):
         return cls.query.all() 
 
-
+class SurveyCompanyModel(db.Model):
+    __tablename__ = 'surveycompany'
+    
+    id = db.Column(db.Integer, primary_key = True)     
+    id_survey = db.Column(db.Integer, nullable = False)
+    name_survey= db.Column(db.String(50), nullable=True)
+    id_company = db.Column(db.Integer, nullable = False)
+    version =  db.Column(db.Integer, nullable = False)
+    status = db.Column(db.String(50), nullable = False)
+    start_date = db.Column(db.DateTime)
+    pub_date = db.Column(db.DateTime)
+    last_date = db.Column(db.DateTime)
+    answers=db.Column(db.String(100),nullable=True)
+    
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first() 
+    @classmethod
+    def find_by_company_id(cls, id_company):
+        return cls.query.filter_by(id_company = id_company).all()
+   
+    @classmethod
+    def find_all(cls):
+        return cls.query.all() 
