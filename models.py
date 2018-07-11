@@ -79,7 +79,13 @@ class QuestionModel(db.Model):
         db.session.commit()
     @classmethod
     def find_by_id(cls, id):
-        return cls.query.filter_by(id = id).first()    
+        return cls.query.filter_by(id = id).first()
+    @classmethod
+    def find_by_array(cls, array):
+
+        ids=[int(s) for s in array.split(',')]
+
+        return cls.query.filter(QuestionModel.id.in_(ids)).all()   
     @classmethod
     def find_all(cls):
         return cls.query.all() 
@@ -121,6 +127,9 @@ class SurveyCompanyModel(db.Model):
         db.session.add(self)
         db.session.commit()
     @classmethod
+    def find_by_name_survey(cls, name_survey):
+        return cls.query.filter_by(name_survey = name_survey).first()
+    @classmethod
     def find_by_id(cls, id):
         return cls.query.filter_by(id = id).first() 
     @classmethod
@@ -130,3 +139,32 @@ class SurveyCompanyModel(db.Model):
     @classmethod
     def find_all(cls):
         return cls.query.all() 
+
+
+class AnswerModel(db.Model):
+    __tablename__ = 'answers'
+
+    id = db.Column(db.Integer, primary_key = True)
+    id_question =db.Column(db.Integer, nullable = False)
+    id_option=db.Column(db.Integer, nullable = True)
+    score = db.Column(db.Integer, nullable = True)
+    future = db.Column(db.Boolean, nullable = True)
+    justification_text = db.Column(db.String(1000), nullable = True)
+    justification_file = db.Column(db.String(220), nullable = True)
+
+    
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first()
+    @classmethod
+    def find_all(cls):
+        return cls.query.all() 
+    @classmethod
+    def find_by_array(cls, array):
+
+        ids=[int(s) for s in array.split(',')]
+
+        return cls.query.filter(AnswerModel.id.in_(ids)).all()  
