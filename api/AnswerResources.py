@@ -29,6 +29,45 @@ class AnswerAll(Resource):
            "justification_file":item.justification_file })
              
              return {'data':results}
+class Answer(Resource):
+
+    def get(self,id):
+        results=[]
+        ids=request.args.get('ids')
+
+        item=AnswerModel.find_by_id(id=id)
+        if (item==None):
+            return {'data':[]}
+        else:
+             #return jsonify(json_list = questions)
+            return {
+           "id":item.id,
+           "id_question":item.id_question ,
+           "id_option":item.id_option,
+           "score":item.score,
+           "future":item.future,
+           "justification_text":item.justification_text,
+           "justification_file":item.justification_file }
+    def put(self,id):
+        item=AnswerModel.find_by_id(id=id)
+        if (item==None):
+            return {'data':[]}
+        else:
+             data= request.json['answer']
+             if (data['id_option']!=None):
+                item.id_option= data['id_option']
+             if (data['id_option']!=None):
+                item.justification_text= data['justification_text']
+             try:
+                item.save_to_db()
+                return {
+                'message': 'answer {} was updated'.format( str(id))
+                }
+             except Exception as e:
+                 print(e)
+                 return {'message': 'Something went wrong '+str(e)}, 500                     
+          
+
 
 from werkzeug.utils import secure_filename 
 import os

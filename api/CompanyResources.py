@@ -6,9 +6,12 @@ from flask import Flask, jsonify, request
 from datetime import datetime
 
 class Company(Resource):
-     def get(self,company_id):
+     @jwt_required
+     def get(self):
+        
+        user= UserModel.find_by_username(email=get_jwt_identity())
         results=[]
-        company= CompanyModel.find_by_id(id=company_id)
+        company= CompanyModel.find_by_id(id=user.id_company)
         if (company==None):
             return {'data':[]}
         else:
@@ -29,11 +32,12 @@ class Company(Resource):
             "territori_leader":company.territori_leader,
             "number_workers":company.number_workers} 
 class SurveyCompanyAll(Resource):
+    @jwt_required
     def get(self):
-        
+        user= UserModel.find_by_username(email=get_jwt_identity())
         results=[]
-        id_company=1;
-        items=SurveyCompanyModel.find_by_company_id(id_company=id_company)
+        company= CompanyModel.find_by_id(id=user.id_company)
+        items=SurveyCompanyModel.find_by_company_id(id_company=user.id_company)
         if (len(items)==0):
             return {'data':[]}
         else:

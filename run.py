@@ -48,11 +48,11 @@ api.add_resource(resources.Survey,'/survey', '/survey/<id>')
 
 api.add_resource(resources.specificsurvey, '/specificsurvey')
 api.add_resource(apis.SectorList, '/sectors')
-api.add_resource(CompanyResources.Company, '/company/<company_id>')
+api.add_resource(CompanyResources.Company, '/company')
 api.add_resource(CompanyResources.SurveyCompany,'/companysurvey/<id>')
 api.add_resource(CompanyResources.SurveyCompanyAll, '/companysurvey')
 api.add_resource(AnswerResources.AnswerAll, '/answers')
 api.add_resource(AnswerResources.UploadFile, '/upload')
-
+api.add_resource(AnswerResources.Answer, '/answer/<id>')
 
 
