@@ -49,16 +49,11 @@ class SurveyCompanyAll(Resource):
 "name_survey":item.name_survey,
 "id_company":item.id_company,
 "status":item.status,
-#"last_modified": item.last_date,
+"last_modified":item.last_date.strftime('%m/%d/%Y'),
 "version":item.version})
              return results
-    def post(self):
-        
-        parser = reqparse.RequestParser()
-        json_data = request.get_json(force=True)
-        
-        data = parser.parse_args()
-        return {json_data}        
+    
+    @jwt_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('id_survey', help = 'This field cannot be blank', required = True)
@@ -78,6 +73,7 @@ class SurveyCompanyAll(Resource):
             status = 'created',
             start_date = datetime.utcnow(),
             last_date = datetime.utcnow(),
+            score=0
         )
         try:
             survey = SurveyModel.find_by_id(id=data['id_survey'])
@@ -85,7 +81,7 @@ class SurveyCompanyAll(Resource):
             answers_id=[]
             for question in questions:
                 answer=AnswerModel(id_question=question,
-                            score=0,
+                            score=-1,
                             future=False,
                             id_option=-1,
                             justification_text='',
@@ -104,7 +100,7 @@ class SurveyCompanyAll(Resource):
 
 
 class SurveyCompany(Resource):
-
+    @jwt_required
     def get(self,id):
         results=[]
         
@@ -120,11 +116,33 @@ class SurveyCompany(Resource):
 "name_survey":item.name_survey,
 "id_company":item.id_company,
 "status":item.status,
-#"last_modified": item.last_date,
+"score":item.score,
+ #"last_modified": item.last_date,
 "version":item.version,
 "questions":survey.questions,
 "answers":item.answers}
              
              return {'data':results}
-
+    @jwt_required
+    def put(self,id):
+        item=SurveyCompanyModel.find_by_id(id=id)
+        if (item==None):
+            return {'data':[]}
+        else:
+             data= request.json['company_survey']
+             if (data['status']!=None):
+                item.status= data['status']
+             if (data['score']!=None):
+                item.score= data['score']
+             last_date = datetime.utcnow(),
+             pub_date = datetime.utcnow(),
+             try:
+                item.save_to_db()
+                return {
+                'message': 'survey company {} was updated'.format( str(id))
+                }
+             except Exception as e:
+                 print(e)
+                 return {'message': 'Something went wrong '+str(e)}, 500 
+     
 	

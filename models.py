@@ -118,6 +118,8 @@ class SurveyCompanyModel(db.Model):
     id_company = db.Column(db.Integer, nullable = False)
     version =  db.Column(db.Integer, nullable = False)
     status = db.Column(db.String(50), nullable = False)
+    score = db.Column(db.Integer, nullable = False)
+    file_crai = db.Column(db.String(50), nullable = True)
     start_date = db.Column(db.DateTime)
     pub_date = db.Column(db.DateTime)
     last_date = db.Column(db.DateTime)

@@ -48,6 +48,7 @@ class Answer(Resource):
            "future":item.future,
            "justification_text":item.justification_text,
            "justification_file":item.justification_file }
+    @jwt_required
     def put(self,id):
         item=AnswerModel.find_by_id(id=id)
         if (item==None):
@@ -56,8 +57,12 @@ class Answer(Resource):
              data= request.json['answer']
              if (data['id_option']!=None):
                 item.id_option= data['id_option']
-             if (data['id_option']!=None):
+             if (data['justification_text']!=None):
                 item.justification_text= data['justification_text']
+             if (data['justification_file']!=None):
+                item.justification_file= data['justification_file']
+             if (data['score']!=None):
+                item.score= data['score']
              try:
                 item.save_to_db()
                 return {
@@ -71,19 +76,43 @@ class Answer(Resource):
 
 from werkzeug.utils import secure_filename 
 import os
+import errno
 class UploadFile(Resource):
-     def post(self):
+
+    def post(self):
+        answer_id = request.args.get('answer')
+        if answer_id == None:
+            return ({'message': 'you need to specifiy answer id'}, 500)
+
         # check if the post request has the file part
+
         if 'file' not in request.files:
-            
-            return {'message':'no file part'}
+
+            return {'message': 'no file part'}
         file = request.files['file']
+
         # if user does not select file, browser also
         # submit a empty part without filename
+
         if file.filename == '':
-            
-            return {'message':'no selected file'}
+
+            return {'message': 'no selected file'}
         if file:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return {'message':'uploaded'}
+            filename = app.config['UPLOAD_FOLDER'] + '/answers/' \
+                + answer_id +'/'+ secure_filename(file.filename)
+            if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc:
+
+                                     # Guard against race condition
+
+                    if exc.errno != errno.EEXIST:
+                        return ({'message': 'error saving file'}, 500)
+
+            file.save(filename)
+            return {'message': 'uploaded'}
+
+
+
+			

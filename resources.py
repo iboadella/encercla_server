@@ -96,7 +96,12 @@ class UserLogoutAccess(Resource):
     def post(self):
         return {'message': 'User logout'}
       
-      
+    
+class LoggedIn(Resource):
+     @jwt_required
+     def post(self):
+         return {'message':'you are logged in'}
+         
 class UserLogoutRefresh(Resource):
     def post(self):
         return {'message': 'User logout'}
@@ -142,10 +147,24 @@ class SecretResource(Resource):
             'answer': 42
         }
 class Questions(Resource):
-    @jwt_required
+    def get(self,id):
+        results=[]
+        question= QuestionModel.find_by_id(id=id)
+        if (questions==None):
+            return {'data':[]}
+        else:
+ 
+                 return {"id":question.id,"statement": question.statement ,"q1":question.ld_option_1,"q2":question.ld_option_2,"q3":question.ld_option_3}
+
+    #@jwt_required
     def get(self):
         results=[]
-        questions= QuestionModel.find_all()
+        ids=request.args.get('ids')
+        print(ids)
+        if (ids==None):
+            questions= QuestionModel.find_all()
+        else:
+            questions=QuestionModel.find_by_array(array=ids)
         if (len(questions)==0):
             return {'data':[]}
         else:
@@ -163,6 +182,7 @@ class Questions(Resource):
         return {json_data}
         
 class Survey(Resource):
+     @jwt_required
      def get(self,id):
         results=[]
         survey= SurveyModel.find_by_id(id)
@@ -171,8 +191,9 @@ class Survey(Resource):
         else:
              #return jsonify(json_list = questions)
              return {"id":survery.id,"sector":survey.sector,"subsector":survey.subsector,"questions":survey.questions}
+     @jwt_required
      def get(self):
-        user=UserModel.find_by_username(email="davide@gmail.com")
+        user=UserModel.find_by_username(email=get_jwt_identity())
         company=CompanyModel.find_by_id(id=user.id_company)
         
         results=[]
