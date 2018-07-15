@@ -154,7 +154,16 @@ class Questions(Resource):
             return {'data':[]}
         else:
  
-                 return {"id":question.id,"statement": question.statement ,"q1":question.ld_option_1,"q2":question.ld_option_2,"q3":question.ld_option_3}
+                 return {
+"id":question.id,
+"statement": question.statement ,
+"q1":question.ld_option_1,
+"q2":question.ld_option_2,
+"q3":question.ld_option_3,
+"q4":question.ld_option_4,
+"futurible":question.futurible,
+"statement":question.statement,
+"strategy":question.strategy}
 
     #@jwt_required
     def get(self):
@@ -170,7 +179,17 @@ class Questions(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in questions:
-                 results.append({"id":item.id,"statement": item.statement ,"q1":item.ld_option_1,"q2":item.ld_option_2,"q3":item.ld_option_3})
+                 results.append({
+	"id":item.id,
+	"statement": item.statement ,
+	"q1":item.ld_option_1,
+	"q2":item.ld_option_2,
+	"q3":item.ld_option_3,
+	"q4":item.ld_option_4,
+	"futurible":item.futurible,
+	"statement":item.statement,
+	"strategy":item.strategy,
+        "more_information":item.more_information})
              
              return {'data':results}
     def post(self):
@@ -225,7 +244,7 @@ import csv
 class loadDataQuestion(Resource):
 
     def get(self):
-        tsvin1 = open('/home/ericanoanira/projects/data.csv', 'rt')
+        tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
             new_question = QuestionModel(
@@ -235,8 +254,10 @@ class loadDataQuestion(Resource):
                 ld_option_2=row[3],
                 ld_option_3=row[4],
                 ld_option_4=row[5],
-                futurible=True,
+                futurible=row[7],
                 more_information=row[6],
+                advise=row[8],
+                proposta_millora=row[9]
                 )
             new_question.save_to_db()
 

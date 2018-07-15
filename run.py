@@ -56,3 +56,4 @@ api.add_resource(AnswerResources.UploadFile, '/upload')
 api.add_resource(AnswerResources.Answer, '/answer/<id>')
 api.add_resource(resources.LoggedIn, '/auth/loggedin')
 
+

@@ -71,7 +71,9 @@ class QuestionModel(db.Model):
     ld_option_2 = db.Column(db.String(220), nullable = False)
     ld_option_3 = db.Column(db.String(220), nullable = False)
     ld_option_4 = db.Column(db.String(220), nullable = False)
-    futurible = db.Column(db.Boolean, nullable = False)
+    futurible = db.Column(db.String(220), nullable = False)
+    advise = db.Column(db.String(220), nullable = False)
+    proposta_millora=db.Column(db.String(220), nullable = False)
     more_information= db.Column(db.String(500), nullable = False)
     
     def save_to_db(self):
@@ -119,7 +121,7 @@ class SurveyCompanyModel(db.Model):
     version =  db.Column(db.Integer, nullable = False)
     status = db.Column(db.String(50), nullable = False)
     score = db.Column(db.Integer, nullable = False)
-    file_crai = db.Column(db.String(50), nullable = True)
+    file_dari = db.Column(db.String(50), nullable = True)
     start_date = db.Column(db.DateTime)
     pub_date = db.Column(db.DateTime)
     last_date = db.Column(db.DateTime)

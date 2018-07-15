@@ -81,8 +81,9 @@ class UploadFile(Resource):
 
     def post(self):
         answer_id = request.args.get('answer')
-        if answer_id == None:
-            return ({'message': 'you need to specifiy answer id'}, 500)
+        surveycompany_id = request.args.get('surveycompany_id')
+        if (answer_id == None and surveycompany_id ==None):
+            return ({'message': 'you need to specifiy answer id or dari id'}, 500)
 
         # check if the post request has the file part
 
@@ -98,8 +99,12 @@ class UploadFile(Resource):
 
             return {'message': 'no selected file'}
         if file:
-            filename = app.config['UPLOAD_FOLDER'] + '/answers/' \
+            if (answer_id!=None):
+                filename = app.config['UPLOAD_FOLDER'] + '/answers/' \
                 + answer_id +'/'+ secure_filename(file.filename)
+            else :
+                filename = app.config['UPLOAD_FOLDER'] + '/surveycompany/' \
+                + surveycompany_id +'/'+ secure_filename(file.filename)                
             if not os.path.exists(os.path.dirname(filename)):
                 try:
                     os.makedirs(os.path.dirname(filename))

@@ -49,7 +49,8 @@ class SurveyCompanyAll(Resource):
 "name_survey":item.name_survey,
 "id_company":item.id_company,
 "status":item.status,
-"last_modified":item.last_date.strftime('%m/%d/%Y'),
+"score":item.score,
+"last_modified":item.last_date.strftime('%m/%d/%Y %H:%M'),
 "version":item.version})
              return results
     
@@ -57,23 +58,24 @@ class SurveyCompanyAll(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('id_survey', help = 'This field cannot be blank', required = True)
-        parser.add_argument('name_survey', help = 'This field cannot be blank', required = True)
         parser.add_argument('id_company', help = 'This field cannot be blank', required = True)
+        parser.add_argument('file_dari', help = 'This field cannot be blank', required = False)
+       
         data = parser.parse_args()
-        if SurveyCompanyModel.find_by_name_survey(data['name_survey']):
-                  return {'message': 'Survey {} already exists'. format(data['name_survey'])},500
+
         items=SurveyCompanyModel.find_by_company_id(id_company=data['id_company'])
-        
+        company=CompanyModel.find_by_id(id=data['id_company']) 
         version=len(items)+1
         new_surveycompany = SurveyCompanyModel(
             id_survey = data['id_survey'],
-            name_survey = data['name_survey'],
+            name_survey = company.commercial_name+".v"+str(version),
             id_company = data['id_company'],
             version=version,
             status = 'created',
             start_date = datetime.utcnow(),
             last_date = datetime.utcnow(),
-            score=0
+            score=0,
+            file_dari=data['file_dari']
         )
         try:
             survey = SurveyModel.find_by_id(id=data['id_survey'])
@@ -92,7 +94,7 @@ class SurveyCompanyAll(Resource):
                      
             new_surveycompany.save_to_db()
             return {
-                'message': 'Company {} was created'.format( data['name_survey'])
+                'message': 'Survey company '+str(new_surveycompany.id)+' was created'
             }
         except Exception as e:
            print(e)
