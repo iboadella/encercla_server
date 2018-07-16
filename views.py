@@ -1,6 +1,8 @@
 from run import app
-from flask import jsonify
+from flask import jsonify,render_template,send_from_directory
+import requests
 
 @app.route('/')
-def index():
-    return jsonify({'message': 'Hello, World!'})
+def serve_index():
+     return send_from_directory('./dist', 'index.html')
+
