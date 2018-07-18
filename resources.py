@@ -189,7 +189,8 @@ class Questions(Resource):
 	"futurible":item.futurible,
 	"statement":item.statement,
 	"strategy":item.strategy,
-        "more_information":item.more_information})
+        "more_information":item.more_information,
+        "proposta_millora":item.proposta_millora})
              
              return {'data':results}
     def post(self):
