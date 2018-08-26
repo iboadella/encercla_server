@@ -1,8 +1,25 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
+from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,QuestionModelES
-from run import db
+from run import db,app
 from flask import Flask, jsonify, request
+
+jwt = JWTManager(app)
+
+@jwt.user_claims_loader
+def add_claims_to_access_token(user):
+    return {'admin': user.type_user}
+
+
+# Create a function that will be called whenever create_access_token
+# is used. It will take whatever object is passed into the
+# create_access_token method, and lets us define what the identity
+# of the access token should be.
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.email
+
+
 class UserRegistration(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -19,12 +36,13 @@ class UserRegistration(Resource):
         )
         try:
             new_user.save_to_db()
-            access_token = create_access_token(identity = data['username'])
-            refresh_token = create_refresh_token(identity = data['username'])
+            access_token = create_access_token(identity = new_user)
+            refresh_token = create_refresh_token(identity = new_user)
             return {
                 'message': 'User {} was created'.format( data['username']),
                 'access_token': access_token,
-                'refresh_token': refresh_token
+                'refresh_token': refresh_token,
+                'admin': new_user.type_user
             }
         except:
            return {'message': 'Something went wrong'}, 500
@@ -98,7 +116,11 @@ class CompanyUpdate(Resource):
         parser.add_argument('territori_leader', help = 'This field cannot be blank', required = True)
         parser.add_argument('number_workers', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
-        
+        duplication=True
+        if (data['duplication_survey']=='true'):
+            duplication=True
+        else:
+            duplicaiton=False        
         company.sector = data['sector']
         company.subsector = data['subsector']
         company.commercial_name = data['commercial_name']
@@ -110,6 +132,7 @@ class CompanyUpdate(Resource):
         company.comarca = data['comarca']
         company.territori_leader = data['territori_leader']
         company.number_workers = data['number_workers']
+        company.duplication_survey=duplication
         
         try:
 
@@ -160,7 +183,7 @@ class CompanyRegistration(Resource):
             fiscal_name = data['fiscal_name'],
             nif = data['nif'],
             number_survey = 0,
-            duplication_survey = False,
+            duplication_survey = True,
             name_surname = data['name_surname'],
             telephone_number = data['telephone_number'],
             description = data['description'],
@@ -190,11 +213,12 @@ class UserLogin(Resource):
             return {'message': 'User {} doesn\'t exist'.format(data['username'])}
         
         if UserModel.verify_hash(data['password'], current_user.password):
-             access_token = create_access_token(identity = data['username'])
-             refresh_token = create_refresh_token(identity = data['username'])
+             access_token = create_access_token(identity = current_user)
+             refresh_token = create_refresh_token(identity = current_user)
              return {'message': 'Logged in as {}'.format(current_user.email),
                 'access_token': access_token,
-                'refresh_token': refresh_token
+                'refresh_token': refresh_token,
+                'admin': current_user.type_user
              }
         else:
              return {'message': 'Wrong credentials'}
@@ -249,7 +273,7 @@ class AllUsers(Resource):
                  if (item.id_company!=None):
                     company=CompanyModel.find_by_id(id=item.id)
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "company" :company.commercial_name
-                    ,"company_id" :user.id_company, "comarca": company.comarca})
+                    ,"company_id" :user.id_company, "comarca": company.comarca, "leader": company.territori_leader})
                  else:
                     results.append({"id":item.id, "email":item.email,"type": item.type_user})
 
@@ -299,6 +323,7 @@ class Questions(Resource):
             questions= QuestionModel.find_all()
             questionsES= QuestionModelES.find_all()
         else:
+
             questions=QuestionModel.find_by_array(array=ids)
             questionsES=QuestionModelES.find_by_array(array=ids)
 
@@ -321,6 +346,7 @@ class Questions(Resource):
         "proposta_millora":item.proposta_millora}})
 
              for index,item in  enumerate(questionsES):
+                
                 results[index]['es']={
     "id":item.id,
     "statement": item.statement ,
@@ -418,7 +444,7 @@ class Survey(Resource):
             surveys=SurveyCompanyModel.find_by_company_id_and_status(survey.id_company,"created")
             new_questions=survey.questions.split(",")
             news=[]
-            import ipdb;ipdb.set_trace()
+            
             for i in surveys:
                 old_answers=i.answers.split(",")
                 for value in old_answers:
@@ -463,19 +489,19 @@ class loadDataQuestionES(Resource):
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
         
 
-        tsvin1 = open('questionsES.txt', 'rt')
+        tsvin1 = open('questionsES_new.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         
         for row in tsvin2:
             new_question = QuestionModelES(
-                statement=row[1],
-                strategy=row[0],
+                statement=row[0],
+                strategy=row[1],
                 ld_option_1=row[2],
                 ld_option_2=row[3],
                 ld_option_3=row[4],
                 ld_option_4=row[5],
-                futurible=row[7],
-                more_information=row[6],
+                futurible=row[6],
+                more_information=row[7],
                 advise=row[8],
                 proposta_millora=row[9]
                 )
@@ -565,11 +591,11 @@ class User(Resource):
               user.email=data['username']
         if (data['password']!=''):
               user.password=data['password']  
-        if (data['admin']!=''):
-              if data['admin']:
-                user.type_user=1
-              else:
-                user.type_user=0         
+        
+        if (data['admin'])=='true':
+            user.type_user=1
+        else:
+            user.type_user=0         
         try:
                user.save_to_db()
                return {
@@ -623,7 +649,12 @@ class UserAlone(Resource):
         if (data['username']!=''):
             user.email=data['username']
         if (data['password']!=''):
-            user.password=data['password']        
+            user.password=data['password']
+
+        if (data['admin'])=='true':
+            user.admin=1
+        else:
+            user.admin=0        
         try:
             user.save_to_db()
             return {

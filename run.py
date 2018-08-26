@@ -4,6 +4,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 #https://github.com/oleg-agapov/flask-jwt-auth
+from datetime import timedelta
 
 app = Flask(__name__,static_url_path='')
 @app.route('/static/<path:path>')
@@ -20,7 +21,7 @@ cors = CORS(app, resources={r"*": {"origins": "*"}})
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'some-secret-string'
-#app.config['JWT_ACCESS_TOKEN_EXPIRES']=''
+app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=60*12)
 app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 jwt = JWTManager(app)
@@ -51,6 +52,10 @@ api.add_resource(resources.Survey,'/survey', '/survey/<id>')
 
 api.add_resource(resources.specificsurvey, '/specificsurvey')
 api.add_resource(apis.SectorList, '/sectors')
+api.add_resource(apis.PropostasList, '/proposals')
+api.add_resource(apis.ComarcaList, '/comarcas')
+api.add_resource(apis.LeaderList, '/leaders')
+
 api.add_resource(CompanyResources.Company, '/company')
 api.add_resource(CompanyResources.CompanyAll, '/companies')
 api.add_resource(CompanyResources.SurveyCompany,'/companysurvey/<id>')

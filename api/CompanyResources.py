@@ -176,6 +176,7 @@ class DuplicateSurveyCompany(Resource):
         if (item.id_company!= user.id_company):
             return {'message':'not authorized'},500
 
+
         items=SurveyCompanyModel.find_by_company_id(id_company=user.id_company)
         version=len(items)+1
         
@@ -196,7 +197,7 @@ class DuplicateSurveyCompany(Resource):
             
             answers= [int(s) for s in item.answers.split(',')]
             answers_id=[]
-            import ipdb;ipdb.set_trace()
+            
             for answer in answers:
                 answerDone=AnswerModel.find_by_id(id=answer)
                 new_answer=AnswerModel(id_question=answerDone.id_question,
@@ -235,20 +236,27 @@ class SurveyCompany(Resource):
         results=[]
         
         item=SurveyCompanyModel.find_by_id(id=id)
+
         if (item==None):
             return {'message':'the survey was not found'}
         else:
              #return jsonify(json_list = questions)
              survey=SurveyModel.find_by_id(id=item.id_survey)
+             company=CompanyModel.find_by_id(id=item.id_company)
+             if (item.pub_date!=None):
+                pub_date=item.pub_date.strftime('%m/%d/%Y')
+             else:
+                pub_date=''
              return {
 "id":item.id,
 "id_survey": item.id_survey ,
 "name_survey":item.name_survey,
 "id_company":item.id_company,
+"company":company.commercial_name,
 "status":item.status,
 "score":item.score,
 "score_future":item.score_future,
- #"last_modified": item.last_date,
+"pub_date":pub_date,
 "version":item.version,
 "questions":survey.questions,
 "answers":item.answers}
@@ -267,8 +275,9 @@ class SurveyCompany(Resource):
                 item.score= data['score']
              if (data['score_future']!=None):
                 item.score_future= data['score_future']
-             last_date = datetime.utcnow(),
-             pub_date = datetime.utcnow(),
+             item.last_date = datetime.utcnow()
+             if (item.pub_date==None):
+                 item.pub_date = datetime.utcnow()
              try:
                 item.save_to_db()
                 return {
@@ -279,7 +288,13 @@ class SurveyCompany(Resource):
                  return {'message': 'Something went wrong '+str(e)}, 500 
     @jwt_required
     def delete(self,id):
+        user= UserModel.find_by_username(email=get_jwt_identity())
         item=SurveyCompanyModel.find_by_id(id=id)
+        
+        if (item==None):
+            return {'message':'the survey was not found'},500
+        if (item.status=='submitted'):
+            return {'message':'the survey has been already submitted,can not be deleted'},500
         if (item==None):
             return {'message':'the survey was not found'},500
         try:

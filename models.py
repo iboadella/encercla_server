@@ -124,7 +124,7 @@ class QuestionModelES(db.Model):
 
         ids=[int(s) for s in array.split(',')]
 
-        return cls.query.filter(QuestionModel.id.in_(ids)).all()   
+        return cls.query.filter(QuestionModelES.id.in_(ids)).all()   
     @classmethod
     def find_all(cls):
         return cls.query.all() 
