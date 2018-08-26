@@ -1,19 +1,28 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,AnswerModel
-
+from run import db
 from flask import Flask, jsonify, request
 from datetime import datetime
-
+from run import app
+import os
+from shutil import copyfile
 class Company(Resource):
      @jwt_required
      def get(self):
-        
+        user_id=request.args.get('user_id')
+
         user= UserModel.find_by_username(email=get_jwt_identity())
+        if (user_id!=None and user.type_user!=1):
+           return {'message': 'not authorized'}, 500
+        if (user_id!=None):
+            user=UserModel.find_by_id(id=user_id)
+
         results=[]
+
         company= CompanyModel.find_by_id(id=user.id_company)
         if (company==None):
-            return {'data':[]}
+            return {'id':''}
         else:
              #return jsonify(json_list = questions)
              return {
@@ -30,14 +39,58 @@ class Company(Resource):
             "description":company.description,
             "comarca":company.comarca,
             "territori_leader":company.territori_leader,
-            "number_workers":company.number_workers} 
+            "number_workers":company.number_workers}
+
+class CompanyAll(Resource):
+     @jwt_required
+     def get(self):
+        
+
+        user= UserModel.find_by_username(email=get_jwt_identity())
+        if (user.type_user!=1):
+           return {'message': 'not authorized'}, 500
+
+
+        results=[]
+
+        items= CompanyModel.find_all()
+        if (len(items)==0):
+            return {'data':[]}
+        else:
+             #return jsonify(json_list = questions)
+             for company in items:
+                 results.append({
+                    "id":company.id,
+                    "sector": company.sector,
+                    "subsector" : company.subsector,
+                    "commercial_name" : company.commercial_name,
+                    "fiscal_name" : company.fiscal_name,
+                    "nif": company.nif,
+                    "number_survey":company.number_survey,
+                    "duplication_survey":company.duplication_survey,
+                    "name_surname":company.name_surname,
+                    "telephone_number":company.telephone_number,
+                    "description":company.description,
+                    "comarca":company.comarca,
+                    "territori_leader":company.territori_leader,
+                    "number_workers":company.number_workers})
+             return results 
+
+
 class SurveyCompanyAll(Resource):
     @jwt_required
     def get(self):
         user= UserModel.find_by_username(email=get_jwt_identity())
+        if (request.args.get('type')!=None and user.type_user!=1):
+            return {'message':'not authorized'},500
+
         results=[]
         company= CompanyModel.find_by_id(id=user.id_company)
         items=SurveyCompanyModel.find_by_company_id(id_company=user.id_company)
+
+        if (request.args.get('type')=='all'):
+            items=SurveyCompanyModel.find_all()
+        
         if (len(items)==0):
             return {'data':[]}
         else:
@@ -50,6 +103,7 @@ class SurveyCompanyAll(Resource):
 "id_company":item.id_company,
 "status":item.status,
 "score":item.score,
+"score_future":item.score_future,
 "last_modified":item.last_date.strftime('%m/%d/%Y %H:%M'),
 "version":item.version})
              return results
@@ -65,16 +119,22 @@ class SurveyCompanyAll(Resource):
 
         items=SurveyCompanyModel.find_by_company_id(id_company=data['id_company'])
         company=CompanyModel.find_by_id(id=data['id_company']) 
+        #len(items)
+        #if len>1
+        #items[len(items)-1].version+1
+        #else version=1
+
         version=len(items)+1
         new_surveycompany = SurveyCompanyModel(
             id_survey = data['id_survey'],
-            name_survey = company.commercial_name+".v"+str(version),
+            name_survey = company.commercial_name+".v"+str(version)+'-'+datetime.utcnow().strftime('%Y'),
             id_company = data['id_company'],
             version=version,
             status = 'created',
             start_date = datetime.utcnow(),
             last_date = datetime.utcnow(),
             score=0,
+            score_future=0,
             file_dari=data['file_dari']
         )
         try:
@@ -84,9 +144,11 @@ class SurveyCompanyAll(Resource):
             for question in questions:
                 answer=AnswerModel(id_question=question,
                             score=-1,
+                            score_future=0,
                             future=False,
                             id_option=-1,
                             justification_text='',
+                            future_justification_text='',
                             justification_file='')
                 answer.save_to_db()
                 answers_id.append(answer.id)
@@ -100,6 +162,72 @@ class SurveyCompanyAll(Resource):
            print(e)
            return {'message': 'Something went wrong '+str(e)}, 500
 
+
+class DuplicateSurveyCompany(Resource):
+    @jwt_required
+    def get(self,id):
+        
+        item=SurveyCompanyModel.find_by_id(id=id)
+        if (item==None):
+            return {'message':'the survey was not found'}
+        if (item.status!="created"):
+            return {'message':'survey already submitted'}
+        user= UserModel.find_by_username(email=get_jwt_identity())
+        if (item.id_company!= user.id_company):
+            return {'message':'not authorized'},500
+
+        items=SurveyCompanyModel.find_by_company_id(id_company=user.id_company)
+        version=len(items)+1
+        
+        company=CompanyModel.find_by_id(id=user.id_company) 
+        new_surveycompany = SurveyCompanyModel(
+            id_survey = item.id_survey,
+            name_survey = company.commercial_name+".v"+str(version),
+            id_company = company.id,
+            version=version,
+            status = 'created',
+            start_date = datetime.utcnow(),
+            last_date = datetime.utcnow(),
+            score=0,
+            score_future=0,
+            file_dari=item.file_dari
+        )
+        try:
+            
+            answers= [int(s) for s in item.answers.split(',')]
+            answers_id=[]
+            import ipdb;ipdb.set_trace()
+            for answer in answers:
+                answerDone=AnswerModel.find_by_id(id=answer)
+                new_answer=AnswerModel(id_question=answerDone.id_question,
+                            score=answerDone.score,
+                            score_future=answerDone.score_future,
+                            future=answerDone.future,
+                            id_option=-answerDone.id_option,
+                            justification_text=answerDone.justification_text,
+                            future_justification_text=answerDone.future_justification_text,
+                            justification_file=answerDone.justification_file)
+                new_answer.save_to_db()
+                if (answerDone.justification_file!=None and answerDone.justification_file!=''):
+                    filename = app.config['UPLOAD_FOLDER'] + '/answers/' + str(answerDone.id) +'/'+ answerDone.justification_file
+                    new_filename = app.config['UPLOAD_FOLDER'] + '/answers/' + str(new_answer.id) +'/'+ new_answer.justification_file
+                    if not os.path.exists(os.path.dirname(new_filename)):
+                        try:
+                            os.makedirs(os.path.dirname(new_filename))
+                        except OSError as exc:
+                            return {'message': 'Something went wrong '+str(exc)}, 500
+
+                    copyfile(filename,new_filename)
+                answers_id.append(new_answer.id)
+            new_surveycompany.answers=','.join([str(i) for i in answers_id])
+                     
+            new_surveycompany.save_to_db()
+            return {
+                'message': 'Survey company '+str(new_surveycompany.id)+' was created'
+            }
+        except Exception as e:
+           print(e)
+           return {'message': 'Something went wrong '+str(e)}, 500
 
 class SurveyCompany(Resource):
     @jwt_required
@@ -119,6 +247,7 @@ class SurveyCompany(Resource):
 "id_company":item.id_company,
 "status":item.status,
 "score":item.score,
+"score_future":item.score_future,
  #"last_modified": item.last_date,
 "version":item.version,
 "questions":survey.questions,
@@ -136,6 +265,8 @@ class SurveyCompany(Resource):
                 item.status= data['status']
              if (data['score']!=None):
                 item.score= data['score']
+             if (data['score_future']!=None):
+                item.score_future= data['score_future']
              last_date = datetime.utcnow(),
              pub_date = datetime.utcnow(),
              try:
@@ -146,5 +277,25 @@ class SurveyCompany(Resource):
              except Exception as e:
                  print(e)
                  return {'message': 'Something went wrong '+str(e)}, 500 
-     
-	
+    @jwt_required
+    def delete(self,id):
+        item=SurveyCompanyModel.find_by_id(id=id)
+        if (item==None):
+            return {'message':'the survey was not found'},500
+        try:
+            
+            answers= [int(s) for s in item.answers.split(',')]
+            answers_id=[]
+            for answer in answers:
+                found=AnswerModel.find_by_id(id=answer)
+                #import ipdb;ipdb.set_trace()
+                db.session.delete(found)
+                db.session.commit()
+            db.session.delete(item)
+            db.session.commit()
+            return {'message':'company_survey deleted'}
+        except Exception as e:
+                 print(e)
+                 return {'message': 'Something went wrong '+str(e)}, 500 
+
+

@@ -21,6 +21,10 @@ class UserModel(db.Model):
     def find_by_username(cls, email):
         return cls.query.filter_by(email = email).first()
     @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first()
+
+    @classmethod
     def find_all(cls):
         return cls.query.all() 
 
@@ -59,7 +63,9 @@ class CompanyModel(db.Model):
     @classmethod
     def find_by_nif(cls, nif):
         return cls.query.filter_by(nif = nif).first()
-
+    @classmethod
+    def find_all(cls):
+        return cls.query.all() 
 
 class QuestionModel(db.Model):
     __tablename__ = 'questions'
@@ -90,20 +96,55 @@ class QuestionModel(db.Model):
         return cls.query.filter(QuestionModel.id.in_(ids)).all()   
     @classmethod
     def find_all(cls):
+        return cls.query.all()
+
+class QuestionModelES(db.Model):
+    __tablename__ = 'questionsES'
+
+    id = db.Column(db.Integer, primary_key = True)
+    statement =db.Column(db.String(200), nullable = False)
+    strategy=db.Column(db.String(200), nullable = False)
+    ld_option_1 = db.Column(db.String(220), nullable = False)
+    ld_option_2 = db.Column(db.String(220), nullable = False)
+    ld_option_3 = db.Column(db.String(220), nullable = False)
+    ld_option_4 = db.Column(db.String(220), nullable = False)
+    futurible = db.Column(db.String(220), nullable = False)
+    advise = db.Column(db.String(220), nullable = False)
+    proposta_millora=db.Column(db.String(220), nullable = False)
+    more_information= db.Column(db.String(500), nullable = False)
+    
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filter_by(id = id).first()
+    @classmethod
+    def find_by_array(cls, array):
+
+        ids=[int(s) for s in array.split(',')]
+
+        return cls.query.filter(QuestionModel.id.in_(ids)).all()   
+    @classmethod
+    def find_all(cls):
         return cls.query.all() 
 class SurveyModel(db.Model):
     __tablename__ = 'survey'
-    
+    #add company id field
     id = db.Column(db.Integer, primary_key = True)     
     sector = db.Column(db.String(50),nullable=False)
     subsector= db.Column(db.String(50), nullable=True)
     questions= db.Column(db.String(100),nullable=True)
+    id_company=db.Column(db.Integer,nullable=True)
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
     @classmethod
     def find_by_id(cls, id):
         return cls.query.filter_by(id = id).first()  
+    @classmethod
+    def find_by_id_company(cls, id_company):
+        return cls.query.filter_by(id_company = id_company).first() 
     @classmethod
     def find_by_sector(cls, sector,subsector):
         return cls.query.filter_by(sector = sector).filter_by(subsector = subsector).first()  
@@ -121,6 +162,7 @@ class SurveyCompanyModel(db.Model):
     version =  db.Column(db.Integer, nullable = False)
     status = db.Column(db.String(50), nullable = False)
     score = db.Column(db.Integer, nullable = False)
+    score_future = db.Column(db.Integer, nullable = False)
     file_dari = db.Column(db.String(50), nullable = True)
     start_date = db.Column(db.DateTime)
     pub_date = db.Column(db.DateTime)
@@ -134,12 +176,18 @@ class SurveyCompanyModel(db.Model):
     def find_by_name_survey(cls, name_survey):
         return cls.query.filter_by(name_survey = name_survey).first()
     @classmethod
+    def find_by_status(cls, status):
+        return cls.query.filter_by(status = status).all() 
+        
+    @classmethod
     def find_by_id(cls, id):
         return cls.query.filter_by(id = id).first() 
     @classmethod
     def find_by_company_id(cls, id_company):
         return cls.query.filter_by(id_company = id_company).all()
-   
+    @classmethod
+    def find_by_company_id_and_status(cls, id_company,status):
+        return cls.query.filter_by(id_company = id_company).filter_by(status = status).all()   
     @classmethod
     def find_all(cls):
         return cls.query.all() 
@@ -151,8 +199,10 @@ class AnswerModel(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     id_question =db.Column(db.Integer, nullable = False)
     id_option=db.Column(db.Integer, nullable = True)
+    score_future = db.Column(db.Integer, nullable = True)
     score = db.Column(db.Integer, nullable = True)
     future = db.Column(db.Boolean, nullable = True)
+    future_justification_text = db.Column(db.String(1000), nullable = True)
     justification_text = db.Column(db.String(1000), nullable = True)
     justification_file = db.Column(db.String(220), nullable = True)
 
