@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
-from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,QuestionModelES
+from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,QuestionModelES,AnswerModel
 from run import db,app
 from flask import Flask, jsonify, request
 
@@ -117,7 +117,8 @@ class CompanyUpdate(Resource):
         parser.add_argument('number_workers', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
         duplication=True
-        if (data['duplication_survey']=='true'):
+
+        if (data['duplication_survey']=='True'):
             duplication=True
         else:
             duplicaiton=False        
@@ -431,6 +432,7 @@ class Survey(Resource):
         data = parser.parse_args()
         
         survey=SurveyModel.find_by_id_company(id_company=data['id_company'])
+        
         if (survey!=None):
             survey.questions=data['questions']
         else:
@@ -448,9 +450,9 @@ class Survey(Resource):
             for i in surveys:
                 old_answers=i.answers.split(",")
                 for value in old_answers:
-                    if(str(QuestionModel.find_by_id(id=value).id) in new_questions):
+                    if(str(AnswerModel.find_by_id(id=value).id_question) in new_questions):
                         news.append(value)
-                i.questions=news.mkstring(",")
+                i.answers=','.join(news)
                 i.save_to_db()
 
 
@@ -592,7 +594,7 @@ class User(Resource):
         if (data['password']!=''):
               user.password=data['password']  
         
-        if (data['admin'])=='true':
+        if (data['admin'])=='True':
             user.type_user=1
         else:
             user.type_user=0         

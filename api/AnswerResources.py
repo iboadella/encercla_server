@@ -202,6 +202,7 @@ class DownloadAll(Resource):
                 answers = survey.answers.split(',')
                 for id_answer in answers:
                     answer = AnswerModel.find_by_id(id=id_answer)
+                    
                     if answer.justification_file != '':
                         zipf.write(os.path.join(app.config['UPLOAD_FOLDER'
                                    ] + '/answers/' + str(answer.id),
