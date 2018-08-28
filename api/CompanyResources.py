@@ -96,6 +96,8 @@ class SurveyCompanyAll(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in items:
+                 if (item.pub_date!=None):
+                       pub_date=item.pub_date.strftime('%Y')
                  results.append({
 "id":item.id,
 "id_survey": item.id_survey ,
@@ -105,6 +107,7 @@ class SurveyCompanyAll(Resource):
 "score":item.score,
 "score_future":item.score_future,
 "last_modified":item.last_date.strftime('%m/%d/%Y %H:%M'),
+"pub_date":pub_date,
 "version":item.version})
              return results
     
