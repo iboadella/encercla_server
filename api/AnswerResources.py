@@ -95,8 +95,9 @@ from werkzeug.utils import secure_filename
 import os
 import errno
 class UploadFile(Resource):
-
+    @jwt_required
     def post(self):
+        
         answer_id = request.args.get('answer')
         surveycompany_id = request.args.get('surveycompany_id')
         if (answer_id == None and surveycompany_id ==None):

@@ -83,6 +83,7 @@ class AdminRegistration(Resource):
            return {'message': 'Something went wrong'}, 500
 
 
+
 class CompanyUpdate(Resource):
     @jwt_required
     def put(self,id):
@@ -573,6 +574,7 @@ class User(Resource):
 
     @jwt_required             
     def put(self,id):
+
         user=UserModel.find_by_username(email=get_jwt_identity())
         if (user.type_user!=1):
             return {'message':'Not authorized'},500
@@ -641,8 +643,7 @@ class UserAlone(Resource):
     @jwt_required             
     def put(self):
         user=UserModel.find_by_username(email=get_jwt_identity())
-        
-        parser = reqparse.RequestParser()
+                parser = reqparse.RequestParser()
         parser.add_argument('username', help = 'This field cannot be blank', required = True)
         parser.add_argument('password', help = 'This field cannot be blank', required = False)
         parser.add_argument('admin', help = 'This field cannot be blank', required = False)
@@ -652,11 +653,11 @@ class UserAlone(Resource):
             user.email=data['username']
         if (data['password']!=''):
             user.password=data['password']
-
-        if (data['admin'])=='true':
-            user.admin=1
-        else:
-            user.admin=0        
+        if (user.type_user==1):
+            if (data['admin'])=='true':
+               user.admin=1
+            else:
+               user.admin=0        
         try:
             user.save_to_db()
             return {
