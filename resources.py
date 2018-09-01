@@ -643,7 +643,7 @@ class UserAlone(Resource):
     @jwt_required             
     def put(self):
         user=UserModel.find_by_username(email=get_jwt_identity())
-                parser = reqparse.RequestParser()
+        parser = reqparse.RequestParser()
         parser.add_argument('username', help = 'This field cannot be blank', required = True)
         parser.add_argument('password', help = 'This field cannot be blank', required = False)
         parser.add_argument('admin', help = 'This field cannot be blank', required = False)

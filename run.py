@@ -46,8 +46,8 @@ api.add_resource(resources.AllUsers, '/users')
 api.add_resource(resources.SecretResource, '/secret')
 
 api.add_resource(resources.Questions, '/questions','/questions/<id>')
-api.add_resource(resources.loadDataQuestion, '/Loadquestions')
-api.add_resource(resources.loadDataQuestionES, '/LoadquestionsES')
+#api.add_resource(resources.loadDataQuestion, '/Loadquestions')
+#api.add_resource(resources.loadDataQuestionES, '/LoadquestionsES')
 api.add_resource(resources.Survey,'/survey', '/survey/<id>')
 
 api.add_resource(resources.specificsurvey, '/specificsurvey')

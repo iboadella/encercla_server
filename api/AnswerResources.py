@@ -12,7 +12,7 @@ import json
 
 
 class AnswerAll(Resource):
-
+    @jwt_required
     def get(self):
         results=[]
         ids=request.args.get('ids')
@@ -195,10 +195,11 @@ class DownloadAll(Resource):
         companies = CompanyModel.find_all()
         zipf = zipfile.ZipFile('all_surveys.zip', 'w',
                                zipfile.ZIP_DEFLATED)
+
         for company in companies:
             surveys = \
                 SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,
-                    status='created')
+                    status='submitted')
             for survey in surveys:
                 answers = survey.answers.split(',')
                 for id_answer in answers:
@@ -211,6 +212,7 @@ class DownloadAll(Resource):
                                    arcname=str(company.id) + '/'
                                    + str(survey.id) + '/'
                                    + str(answer.id) + '/' +  answer.justification_file)
+
         zipf.close()
         try:
             return send_file('all_surveys.zip', as_attachment=True)
@@ -243,7 +245,7 @@ class DownloadDataExcel(Resource):
               #       answers = survey.answers.split(',')
                      data.append({"preguntes":question.statement,"id":question.id})
         for company in companies:
-            surveys=SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,status='created')
+            surveys=SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,status='submitted')
             for survey in surveys:
                    answers = survey.answers.split(',')
 

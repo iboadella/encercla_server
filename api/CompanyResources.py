@@ -96,6 +96,7 @@ class SurveyCompanyAll(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in items:
+                 pub_date=''
                  if (item.pub_date!=None):
                        pub_date=item.pub_date.strftime('%Y')
                  results.append({
