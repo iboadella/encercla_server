@@ -166,7 +166,20 @@ class Download(Resource):
         survey=SurveyCompanyModel.find_by_id(id=id)
         if (survey==None):
             return {'message':'survey not found'},500
-        zipf = zipfile.ZipFile('survey'+str(survey.id)+'.zip', 'w', zipfile.ZIP_DEFLATED)
+
+        folder=app.config['UPLOAD_FOLDER']+'/'+str(user.id)+'/survey/'
+        filename=folder+str(survey.id)+'.zip'
+        
+        if not os.path.exists(os.path.dirname(folder)):
+                try:
+                    os.makedirs(os.path.dirname(folder))
+                except OSError as exc:
+
+                                     # Guard against race condition
+
+                    if exc.errno != errno.EEXIST:
+                        return ({'message': 'error saving file'}, 500)
+        zipf = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED)
         answers = survey.answers.split(",")
         
         for id_answer in answers:
@@ -175,7 +188,7 @@ class Download(Resource):
                 zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/answers/'+str(answer.id), answer.justification_file),arcname=str(answer.id)+'/'+ answer.justification_file)
         zipf.close()
         try:
-            return send_file('survey'+str(survey.id)+'.zip', as_attachment=True)
+            return send_file(filename, as_attachment=True)
         except Exception as e:
                  print(e)
                  return {'message': 'Something went wrong '+str(e)}, 500          
@@ -193,7 +206,18 @@ class DownloadAll(Resource):
         # change status to submitted
 
         companies = CompanyModel.find_all()
-        zipf = zipfile.ZipFile('all_surveys.zip', 'w',
+        folder=app.config['UPLOAD_FOLDER']+'/'+str(user.id)+'/survey/'
+        filename=folder+'all_surveys.zip'
+        if not os.path.exists(os.path.dirname(folder)):
+                try:
+                    os.makedirs(os.path.dirname(folder))
+                except OSError as exc:
+
+                                     # Guard against race condition
+
+                    if exc.errno != errno.EEXIST:
+                        return ({'message': 'error saving file'}, 500)
+        zipf = zipfile.ZipFile(filename, 'w',
                                zipfile.ZIP_DEFLATED)
 
         for company in companies:
@@ -215,7 +239,7 @@ class DownloadAll(Resource):
 
         zipf.close()
         try:
-            return send_file('all_surveys.zip', as_attachment=True)
+            return send_file(filename, as_attachment=True)
         except Exception as e:
             
             return ({'message': 'Something went wrong ' + str(e)}, 500)
