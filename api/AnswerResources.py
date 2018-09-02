@@ -235,7 +235,7 @@ class DownloadAll(Resource):
                                    answer.justification_file),
                                    arcname=company.commercial_name + '/'
                                    + survey.name_survey + '/'
-                                   + str(answer.id) + '/' +  answer.justification_file)
+                                   + str(answer.id_question) + '/' +  answer.justification_file)
 
         zipf.close()
         try:
