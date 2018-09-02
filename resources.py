@@ -274,7 +274,7 @@ class AllUsers(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in users:
-                 
+
                  if (item.id_company!=None):
                     company=CompanyModel.find_by_id(id=item.id_company)
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "company" :company.commercial_name
@@ -598,7 +598,7 @@ class User(Resource):
         if (data['username']!=''):
               user.email=data['username']
         if (data['password']!=''):
-              user.password=data['password']  
+              user.password=UserModel.generate_hash(data['password']) 
         
         if (data['admin'])=='True':
             user.type_user=1
@@ -657,7 +657,7 @@ class UserAlone(Resource):
         if (data['username']!=''):
             user.email=data['username']
         if (data['password']!=''):
-            user.password=data['password']
+            user.password=UserModel.generate_hash(data['password'])
         if (user.type_user==1):
             if (data['admin'])=='true':
                user.admin=1
