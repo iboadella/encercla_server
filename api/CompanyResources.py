@@ -174,8 +174,8 @@ class DuplicateSurveyCompany(Resource):
         item=SurveyCompanyModel.find_by_id(id=id)
         if (item==None):
             return {'message':'the survey was not found'}
-        if (item.status!="created"):
-            return {'message':'survey already submitted'}
+        #if (item.status!="created"):
+        #    return {'message':'survey already submitted'}
         user= UserModel.find_by_username(email=get_jwt_identity())
         if (item.id_company!= user.id_company):
             return {'message':'not authorized'},500
@@ -189,7 +189,7 @@ class DuplicateSurveyCompany(Resource):
             return {'message':'survey can not be duplicated'}       
         new_surveycompany = SurveyCompanyModel(
             id_survey = item.id_survey,
-            name_survey = company.commercial_name+".v"+str(version),
+            name_survey = company.commercial_name+".v"+str(version)+'-'+datetime.utcnow().strftime('%Y'),
             id_company = company.id,
             version=version,
             status = 'created',
