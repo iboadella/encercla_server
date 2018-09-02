@@ -206,11 +206,12 @@ class DuplicateSurveyCompany(Resource):
             
             for answer in answers:
                 answerDone=AnswerModel.find_by_id(id=answer)
+                
                 new_answer=AnswerModel(id_question=answerDone.id_question,
                             score=answerDone.score,
                             score_future=answerDone.score_future,
                             future=answerDone.future,
-                            id_option=-answerDone.id_option,
+                            id_option=answerDone.id_option,
                             justification_text=answerDone.justification_text,
                             future_justification_text=answerDone.future_justification_text,
                             justification_file=answerDone.justification_file)
