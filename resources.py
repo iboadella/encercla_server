@@ -55,7 +55,7 @@ class AdminRegistration(Resource):
         user=UserModel.find_by_username(email=get_jwt_identity())
         
         if (user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         parser = reqparse.RequestParser()
         parser.add_argument('username', help = 'This field cannot be blank', required = True)
         parser.add_argument('password', help = 'This field cannot be blank', required = True)
@@ -92,9 +92,9 @@ class CompanyUpdate(Resource):
         user= UserModel.find_by_username(email=get_jwt_identity())
 
         if (user.id_company!=company.id and user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         if (user_id!=None and user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         else:
             user=UserModel.find_by_id(id=user_id)
         
@@ -154,7 +154,7 @@ class CompanyRegistration(Resource):
         user_id=request.args.get('user_id')
         user=UserModel.find_by_username(email=get_jwt_identity())
         if (user_id!=None and user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         if (user_id!=None):
             user=UserModel.find_by_id(id=user_id)
         
@@ -176,6 +176,7 @@ class CompanyRegistration(Resource):
         parser.add_argument('territori_leader', help = 'This field cannot be blank', required = True)
         parser.add_argument('number_workers', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
+        i
         if CompanyModel.find_by_nif(data['nif']):
                   return {'message': 'Company {} already exists'. format(data['nif'])}
         new_company = CompanyModel(
@@ -265,7 +266,7 @@ class AllUsers(Resource):
         user=UserModel.find_by_username(email=get_jwt_identity())
         
         if (user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         users= UserModel.find_all()
         results=[]
         if (len(users)==0):
@@ -273,8 +274,9 @@ class AllUsers(Resource):
         else:
              #return jsonify(json_list = questions)
              for item in users:
+                 
                  if (item.id_company!=None):
-                    company=CompanyModel.find_by_id(id=item.id)
+                    company=CompanyModel.find_by_id(id=item.id_company)
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "company" :company.commercial_name
                     ,"company_id" :user.id_company, "comarca": company.comarca, "leader": company.territori_leader})
                  else:
@@ -388,7 +390,7 @@ class Survey(Resource):
         user=UserModel.find_by_username(email=get_jwt_identity())
         id_company=request.args.get('id')
         if (id_company!=None and user.type_user!=1):
-            return {'message':'Not authorized'},500
+            return {'message':'no autoritzat'},500
         
         company=CompanyModel.find_by_id(id=user.id_company)
         if (id_company!=None):
@@ -428,7 +430,7 @@ class Survey(Resource):
         user=UserModel.find_by_username(email=get_jwt_identity())
         
         if (user.type_user!=1):
-            return {'message':'Not authorized'},500        
+            return {'message':'no autoritzat'},500        
         parser = reqparse.RequestParser()
         parser.add_argument('questions', help = 'This field cannot be blank', required = True)
         parser.add_argument('id_company', help = 'This field cannot be blank', required = True)
@@ -540,7 +542,7 @@ class User(Resource):
             admin=True
 
         if (user.type_user!=1 and id!=user.id):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         user=UserModel.find_by_id(id=id)
         if (user==None):
             return {'message':'user not found'}
@@ -555,7 +557,7 @@ class User(Resource):
     def delete(self,id):
         item=UserModel.find_by_username(email=get_jwt_identity())
         if (item.type_user!=1):
-            return {'message':'Not authorized'},500
+            return {'message':'no autoritzat'},500
         else:
             item=UserModel.find_by_id(id=id)
 
@@ -579,7 +581,7 @@ class User(Resource):
 
         user=UserModel.find_by_username(email=get_jwt_identity())
         if (user.type_user!=1):
-            return {'message':'Not authorized'},500
+            return {'message':'no autoritzat'},500
         else:
             user=UserModel.find_by_id(id=id)
 
