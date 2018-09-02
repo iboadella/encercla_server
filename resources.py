@@ -246,6 +246,7 @@ class TokenRefresh(Resource):
         return {'message': 'Token refresh'}
       
 class Allcompanies(Resource):
+    @jwt_required
     def get(self):
         users= CompanyModel.find_all()
         results=[]
@@ -298,6 +299,7 @@ class SecretResource(Resource):
             'answer': 42
         }
 class Questions(Resource):
+    
     def get(self,id):
         results=[]
         question= QuestionModel.find_by_id(id=id)
@@ -611,13 +613,14 @@ class User(Resource):
 class UserAlone(Resource):
     @jwt_required
     def get(self):
+        
         user=UserModel.find_by_username(email=get_jwt_identity())
 
         
         if (user==None):
             return {'message':'user not found'}
         else:
-            if (user.type_user==1):
+            
                 return  {"id":user.id, "email":user.email}
 
             
