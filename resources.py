@@ -176,7 +176,7 @@ class CompanyRegistration(Resource):
         parser.add_argument('territori_leader', help = 'This field cannot be blank', required = True)
         parser.add_argument('number_workers', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
-        i
+        
         if CompanyModel.find_by_nif(data['nif']):
                   return {'message': 'Company {} already exists'. format(data['nif'])}
         new_company = CompanyModel(
