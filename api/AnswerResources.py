@@ -233,8 +233,8 @@ class DownloadAll(Resource):
                         zipf.write(os.path.join(app.config['UPLOAD_FOLDER'
                                    ] + '/answers/' + str(answer.id),
                                    answer.justification_file),
-                                   arcname=str(company.id) + '/'
-                                   + str(survey.id) + '/'
+                                   arcname=company.commercial_name + '/'
+                                   + survey.name_survey + '/'
                                    + str(answer.id) + '/' +  answer.justification_file)
 
         zipf.close()
