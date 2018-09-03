@@ -118,11 +118,11 @@ class CompanyUpdate(Resource):
         parser.add_argument('number_workers', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
         duplication=True
-
+        
         if (data['duplication_survey']=='True'):
             duplication=True
         else:
-            duplicaiton=False        
+            duplication=False        
         company.sector = data['sector']
         company.subsector = data['subsector']
         company.commercial_name = data['commercial_name']
@@ -178,7 +178,7 @@ class CompanyRegistration(Resource):
         data = parser.parse_args()
         
         if CompanyModel.find_by_nif(data['nif']):
-                  return {'message': 'Company {} already exists'. format(data['nif'])}
+                  return {'message': 'Empresa amb aquest NIF esta registrada'}
         new_company = CompanyModel(
             sector = data['sector'],
             subsector = data['subsector'],
@@ -213,7 +213,7 @@ class UserLogin(Resource):
         data = parser.parse_args()
         current_user = UserModel.find_by_username(data['username'])
         if not current_user:
-            return {'message': 'User {} doesn\'t exist'.format(data['username'])}
+            return {'message': 'Aquest usuari no existeix'}
         
         if UserModel.verify_hash(data['password'], current_user.password):
              access_token = create_access_token(identity = current_user)
@@ -224,7 +224,7 @@ class UserLogin(Resource):
                 'admin': current_user.type_user
              }
         else:
-             return {'message': 'Wrong credentials'}
+             return {'message': 'Contrasenya equivocada'}
       
       
 class UserLogoutAccess(Resource):
@@ -454,9 +454,26 @@ class Survey(Resource):
             
             for i in surveys:
                 old_answers=i.answers.split(",")
+                old_questions=[]
                 for value in old_answers:
-                    if(str(AnswerModel.find_by_id(id=value).id_question) in new_questions):
+                    old_question=AnswerModel.find_by_id(id=value).id_question
+                    old_questions.append(str(old_question))
+                    if(str(old_question) in new_questions):
                         news.append(value)
+                
+                for value in new_questions:
+                    if(not value in old_questions):
+                        answer=AnswerModel(
+                            id_question=value,
+                            score=-1,
+                            score_future=0,
+                            future=False,
+                            id_option=-1,
+                            justification_text='',
+                            future_justification_text='',
+                            justification_file='')
+                        answer.save_to_db()
+                        news.append(str(answer.id))
                 i.answers=','.join(news)
                 i.save_to_db()
 
@@ -562,7 +579,7 @@ class User(Resource):
             item=UserModel.find_by_id(id=id)
 
         if (item==None):
-            return {'message':'the user was not found'},500
+            return {'message':'No es ha trobat el usuari'},500
         try:
             
             if (item.id_company!=None):
@@ -586,7 +603,7 @@ class User(Resource):
             user=UserModel.find_by_id(id=id)
 
         if (user==None):
-            return {'message':'the user was not found'},500
+            return {'message':'No es ha trobat el usuari'},500
         
         
         parser = reqparse.RequestParser()
@@ -620,7 +637,7 @@ class UserAlone(Resource):
 
         
         if (user==None):
-            return {'message':'user not found'}
+            return {'message':'No es ha trobat el usuari'}
         else:
             
                 return  {"id":user.id, "email":user.email}

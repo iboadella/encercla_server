@@ -185,8 +185,9 @@ class DuplicateSurveyCompany(Resource):
         version=len(items)+1
         
         company=CompanyModel.find_by_id(id=user.id_company) 
+
         if (company.duplication_survey==False):
-            return {'message':'survey can not be duplicated'}       
+            return {'message':'No es pot duplicar el qüestionari'},500   
         new_surveycompany = SurveyCompanyModel(
             id_survey = item.id_survey,
             name_survey = company.commercial_name+".v"+str(version)+'-'+datetime.utcnow().strftime('%Y'),

@@ -162,7 +162,7 @@ class Download(Resource):
 
         user= UserModel.find_by_username(email=get_jwt_identity())
         if (user.type_user!=1):
-           return {'message': 'not authorized'}, 500
+           return {'message': 'no autoritzat'}, 500
         survey=SurveyCompanyModel.find_by_id(id=id)
         if (survey==None):
             return {'message':'survey not found'},500
@@ -200,7 +200,7 @@ class DownloadAll(Resource):
     def get(self):
         user = UserModel.find_by_username(email=get_jwt_identity())
         if user.type_user != 1:
-            return ({'message': 'not authorized'}, 500)
+            return ({'message': 'no autoritzat'}, 500)
         
 
         # change status to submitted
@@ -250,7 +250,7 @@ class DownloadDataExcel(Resource):
     def get(self):
         user = UserModel.find_by_username(email=get_jwt_identity())
         if user.type_user != 1:
-            return ({'message': 'not authorized'}, 500)
+            return ({'message': 'no autoritzat'}, 500)
         
 
         # change status to submitted
