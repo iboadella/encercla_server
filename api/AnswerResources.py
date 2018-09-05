@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
-from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,AnswerModel
+from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,AnswerModel,QuestionModelES
 
 from flask import Flask, jsonify, request, send_file
 from datetime import datetime
@@ -181,7 +181,11 @@ class Download(Resource):
                         return ({'message': 'error saving file'}, 500)
         zipf = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED)
         answers = survey.answers.split(",")
-        
+        if (survey.file_dari!=''):
+            True
+            #app.config['UPLOAD_FOLDER'] + '/surveycompany/' \
+               # + surveycompany_id +'/'+ secure_filename(file.filename) 
+            zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari),arcname=survey.file_dari)
         for id_answer in answers:
             answer=AnswerModel.find_by_id(id=id_answer)
             if (answer.justification_file!=''):
@@ -198,6 +202,8 @@ class DownloadAll(Resource):
 
     @jwt_required
     def get(self):
+        ids=request.args.get('ids')
+        surveys_id= ids.split(",")
         user = UserModel.find_by_username(email=get_jwt_identity())
         if user.type_user != 1:
             return ({'message': 'no autoritzat'}, 500)
@@ -219,12 +225,18 @@ class DownloadAll(Resource):
                         return ({'message': 'error saving file'}, 500)
         zipf = zipfile.ZipFile(filename, 'w',
                                zipfile.ZIP_DEFLATED)
-
+     
         for company in companies:
             surveys = \
                 SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,
                     status='submitted')
+            
             for survey in surveys:
+                if (not str(survey.id) in  surveys_id):
+                    continue
+                if (survey.file_dari!=''):
+                    zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari),arcname=company.commercial_name + '/' + survey.name_survey + '/' +survey.file_dari)
+
                 answers = survey.answers.split(',')
                 for id_answer in answers:
                     answer = AnswerModel.find_by_id(id=id_answer)
@@ -249,6 +261,10 @@ class DownloadDataExcel(Resource):
     @jwt_required
     def get(self):
         user = UserModel.find_by_username(email=get_jwt_identity())
+
+        ids=request.args.get('ids')
+        surveys_id= ids.split(",")
+        lang= request.args.get("lang")
         if user.type_user != 1:
             return ({'message': 'no autoritzat'}, 500)
         
@@ -258,8 +274,12 @@ class DownloadDataExcel(Resource):
         companies = CompanyModel.find_all()
         zipf = zipfile.ZipFile('all_surveys.zip', 'w',
                                zipfile.ZIP_DEFLATED)
-        data=[{"preguntes":""}]
+        data=[{"id":""}]
+        word="Preguntes"
         questions= QuestionModel.find_all()
+        if (lang=='es'):
+            word='Preguntas'
+            questions=QuestionModelES.find_all()
         for question in questions:
             #for company in companies:
             #    surveys = \
@@ -267,10 +287,12 @@ class DownloadDataExcel(Resource):
              #       status='created')
              #   for survey in surveys:
               #       answers = survey.answers.split(',')
-                     data.append({"preguntes":question.statement,"id":question.id})
+                     data.append({"id":question.id,word:question.statement})
         for company in companies:
             surveys=SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,status='submitted')
             for survey in surveys:
+                   if (not str(survey.id) in  surveys_id):
+                       continue
                    answers = survey.answers.split(',')
 
 
