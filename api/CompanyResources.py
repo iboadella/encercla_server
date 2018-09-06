@@ -4,6 +4,8 @@ from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompan
 from run import db
 from flask import Flask, jsonify, request
 from datetime import datetime
+from pytz import timezone
+import pytz
 from run import app
 import os
 from shutil import copyfile
@@ -107,7 +109,7 @@ class SurveyCompanyAll(Resource):
 "status":item.status,
 "score":item.score,
 "score_future":item.score_future,
-"last_modified":item.last_date.strftime('%m/%d/%Y %H:%M'),
+"last_modified":item.last_date.strftime('%d/%m/%Y %H:%M'),
 "pub_date":pub_date,
 "version":item.version,
 "year":item.convocatoria_year})
@@ -141,8 +143,8 @@ class SurveyCompanyAll(Resource):
             id_company = data['id_company'],
             version=version,
             status = 'created',
-            start_date = datetime.utcnow(),
-            last_date = datetime.utcnow(),
+            start_date = datetime.now(pytz.timezone('Europe/Amsterdam')),
+            last_date = datetime.now(pytz.timezone('Europe/Amsterdam')),
             score=0,
             score_future=0,
             file_dari=data['file_dari'],
@@ -202,8 +204,8 @@ class DuplicateSurveyCompany(Resource):
             id_company = company.id,
             version=version,
             status = 'created',
-            start_date = datetime.utcnow(),
-            last_date = datetime.utcnow(),
+            start_date = datetime.now(pytz.timezone('Europe/Amsterdam')),
+            last_date = datetime.now(pytz.timezone('Europe/Amsterdam')),
             score=0,
             score_future=0,
             file_dari=item.file_dari
@@ -260,7 +262,7 @@ class SurveyCompany(Resource):
              survey=SurveyModel.find_by_id(id=item.id_survey)
              company=CompanyModel.find_by_id(id=item.id_company)
              if (item.pub_date!=None):
-                pub_date=item.pub_date.strftime('%m/%d/%Y')
+                pub_date=item.pub_date.strftime('%d/%m/%Y')
              else:
                 pub_date=''
              return {
@@ -291,9 +293,9 @@ class SurveyCompany(Resource):
                 item.score= data['score']
              if (data['score_future']!=None):
                 item.score_future= data['score_future']
-             item.last_date = datetime.utcnow()
+             item.last_date = datetime.now(pytz.timezone('Europe/Amsterdam'))
              if (item.pub_date==None):
-                 item.pub_date = datetime.utcnow()
+                 item.pub_date = datetime.now(pytz.timezone('Europe/Amsterdam'))
              try:
                 item.save_to_db()
                 return {

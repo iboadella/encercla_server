@@ -13,6 +13,7 @@ class UserModel(db.Model):
     password = db.Column(db.String(120), nullable = False)
     type_user = db.Column (db.Integer,nullable = False)
     id_company= db.Column(db.Integer,nullable= True)
+    year = db.Column(db.String(120), nullable = False)
     
     def save_to_db(self):
         db.session.add(self)

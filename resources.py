@@ -3,6 +3,7 @@ from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_
 from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,QuestionModelES,AnswerModel
 from run import db,app
 from flask import Flask, jsonify, request
+from datetime import datetime
 
 jwt = JWTManager(app)
 
@@ -29,10 +30,12 @@ class UserRegistration(Resource):
         data = parser.parse_args()
         if UserModel.find_by_username(data['username']):
                   return {'message': 'Usuari ja existeix'}
+        
         new_user = UserModel(
             email = data['username'],
             password = UserModel.generate_hash(data['password']),
-            type_user=0 #0=normal_user
+            type_user=0, #0=normal_user,
+            year=datetime.utcnow().strftime('%Y')
         )
         try:
             new_user.save_to_db()
@@ -278,9 +281,9 @@ class AllUsers(Resource):
                  if (item.id_company!=None):
                     company=CompanyModel.find_by_id(id=item.id_company)
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "company" :company.commercial_name
-                    ,"company_id" :user.id_company, "comarca": company.comarca, "leader": company.territori_leader})
+                    ,"company_id" :user.id_company, "comarca": company.comarca, "leader": company.territori_leader, "year": item.year})
                  else:
-                    results.append({"id":item.id, "email":item.email,"type": item.type_user})
+                    results.append({"id":item.id, "email":item.email,"type": item.type_user, "year": item.year})
 
 
 
