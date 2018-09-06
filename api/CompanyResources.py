@@ -129,7 +129,7 @@ class SurveyCompanyAll(Resource):
         #if len>1
         #items[len(items)-1].version+1
         #else version=1
-        import ipdb;ipdb.set_trace()
+        
         convocatoria=False
         if (data['convocatoria']=='True'):
             convocatoria=True
