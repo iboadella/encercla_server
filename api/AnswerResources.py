@@ -191,11 +191,11 @@ class Download(Resource):
             True
             #app.config['UPLOAD_FOLDER'] + '/surveycompany/' \
                # + surveycompany_id +'/'+ secure_filename(file.filename) 
-            zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari),arcname=survey.file_dari)
+            zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari.replace(" ","_")),arcname=survey.file_dari)
         for id_answer in answers:
             answer=AnswerModel.find_by_id(id=id_answer)
             if (answer.justification_file!=''):
-                zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/answers/'+str(answer.id), answer.justification_file),arcname=str(answer.id)+'/'+ answer.justification_file)
+                zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/answers/'+str(answer.id), answer.justification_file.replace(" ","_")),arcname=str(answer.id)+'/'+ answer.justification_file)
         zipf.close()
         try:
             return send_file(filename, as_attachment=True)
@@ -241,7 +241,7 @@ class DownloadAll(Resource):
                 if (not str(survey.id) in  surveys_id):
                     continue
                 if (survey.file_dari!=''):
-                    zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari),arcname=company.commercial_name + '/' + survey.name_survey + '/' +survey.file_dari)
+                    zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/surveycompany/'+str(survey.id), survey.file_dari.replace(" ","_")),arcname=company.commercial_name + '/' + survey.name_survey + '/' +survey.file_dari)
 
                 answers = survey.answers.split(',')
                 for id_answer in answers:
@@ -253,7 +253,7 @@ class DownloadAll(Resource):
                                    answer.justification_file),
                                    arcname=company.commercial_name + '/'
                                    + survey.name_survey + '/'
-                                   + str(answer.id_question) + '/' +  answer.justification_file)
+                                   + str(answer.id_question) + '/' +  answer.justification_file.replace(" ","_"))
 
         zipf.close()
         try:
