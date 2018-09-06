@@ -134,6 +134,7 @@ class UploadFile(Resource):
                         return ({'message': 'error saving file'}, 500)
 
             try:
+                print(filename)
                 file.save(filename)
                 return {'message': 'uploaded'}
             except Exception as e:
