@@ -109,7 +109,8 @@ class SurveyCompanyAll(Resource):
 "score_future":item.score_future,
 "last_modified":item.last_date.strftime('%m/%d/%Y %H:%M'),
 "pub_date":pub_date,
-"version":item.version})
+"version":item.version,
+"year":item.convocatoria_year})
              return results
     
     @jwt_required
@@ -118,7 +119,8 @@ class SurveyCompanyAll(Resource):
         parser.add_argument('id_survey', help = 'This field cannot be blank', required = True)
         parser.add_argument('id_company', help = 'This field cannot be blank', required = True)
         parser.add_argument('file_dari', help = 'This field cannot be blank', required = False)
-       
+        parser.add_argument('convocatoria', help = 'This field cannot be blank', required = True)
+        parser.add_argument('convocatoria_year', help = 'This field cannot be blank', required = False)      
         data = parser.parse_args()
 
         items=SurveyCompanyModel.find_by_company_id(id_company=data['id_company'])
@@ -127,6 +129,10 @@ class SurveyCompanyAll(Resource):
         #if len>1
         #items[len(items)-1].version+1
         #else version=1
+        import ipdb;ipdb.set_trace()
+        convocatoria=False
+        if (data['convocatoria']=='True'):
+            convocatoria=True
 
         version=len(items)+1
         new_surveycompany = SurveyCompanyModel(
@@ -139,7 +145,9 @@ class SurveyCompanyAll(Resource):
             last_date = datetime.utcnow(),
             score=0,
             score_future=0,
-            file_dari=data['file_dari']
+            file_dari=data['file_dari'],
+            convocatoria=convocatoria,
+            convocatoria_year=data['convocatoria_year']
         )
         try:
             survey = SurveyModel.find_by_id(id=data['id_survey'])

@@ -136,6 +136,7 @@ class SurveyModel(db.Model):
     subsector= db.Column(db.String(50), nullable=True)
     questions= db.Column(db.String(100),nullable=True)
     id_company=db.Column(db.Integer,nullable=True)
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -168,6 +169,8 @@ class SurveyCompanyModel(db.Model):
     pub_date = db.Column(db.DateTime)
     last_date = db.Column(db.DateTime)
     answers=db.Column(db.String(100),nullable=True)
+    convocatoria = db.Column(db.Boolean,nullable=False)
+    convocatoria_year = db.Column(db.String(50), nullable=True)
     
     def save_to_db(self):
         db.session.add(self)
