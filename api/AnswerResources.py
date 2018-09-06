@@ -133,8 +133,13 @@ class UploadFile(Resource):
                     if exc.errno != errno.EEXIST:
                         return ({'message': 'error saving file'}, 500)
 
-            file.save(filename)
-            return {'message': 'uploaded'}
+            try:
+                file.save(filename)
+                return {'message': 'uploaded'}
+            except Exception as e:
+                 print(e)
+                 return {'message': 'Something went wrong '+str(e)}, 500  
+            
 
     @jwt_required
     def delete(self):
