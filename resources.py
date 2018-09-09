@@ -486,7 +486,7 @@ class Survey(Resource):
                             justification_file='')
                         answer.save_to_db()
                         news.append(str(answer.id))
-                import ipdb;ipdb.set_trace()
+                
                 i.id_survey=survey.id
                 i.answers=','.join(news)
                 i.save_to_db()
