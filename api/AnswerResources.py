@@ -195,7 +195,7 @@ class Download(Resource):
         for id_answer in answers:
             answer=AnswerModel.find_by_id(id=id_answer)
             if (answer.justification_file!=''):
-                zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/answers/'+str(answer.id), answer.justification_file.replace(" ","_")),arcname=str(answer.id)+'/'+ answer.justification_file)
+                zipf.write(os.path.join(app.config['UPLOAD_FOLDER'] + '/answers/'+str(answer.id), answer.justification_file.replace(" ","_")),arcname=str(answer.id_question)+'/'+ answer.justification_file)
         zipf.close()
         try:
             return send_file(filename, as_attachment=True)

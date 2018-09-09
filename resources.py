@@ -35,7 +35,7 @@ class UserRegistration(Resource):
             email = data['username'],
             password = UserModel.generate_hash(data['password']),
             type_user=0, #0=normal_user,
-            year=datetime.utcnow().strftime('%Y')
+            year=datetime.utcnow().strftime('%d/%m/%Y')
         )
         try:
             new_user.save_to_db()
@@ -74,7 +74,8 @@ class AdminRegistration(Resource):
         new_user = UserModel(
             email = data['username'],
             password = UserModel.generate_hash(data['password']),
-            type_user=type #0=normal_user
+            type_user=type,
+            year=datetime.utcnow().strftime('%d/%m/%Y')#0=normal_user
         )
         try:
             new_user.save_to_db()
@@ -281,7 +282,14 @@ class AllUsers(Resource):
                  if (item.id_company!=None):
                     company=CompanyModel.find_by_id(id=item.id_company)
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "company" :company.commercial_name
-                    ,"company_id" :user.id_company, "comarca": company.comarca, "leader": company.territori_leader, "year": item.year})
+                    ,"company_id" :user.id_company, 
+                    "comarca": company.comarca, 
+                    "leader": company.territori_leader, 
+                    "year": item.year,
+                    "sector":company.sector,
+                    "subsector":company.subsector,
+                    "name_contact":company.name_surname,
+                    "telephone_number":company.telephone_number})
                  else:
                     results.append({"id":item.id, "email":item.email,"type": item.type_user, "year": item.year})
 
@@ -450,6 +458,7 @@ class Survey(Resource):
              questions = data['questions']
           )
         try:
+            
             survey.save_to_db()
             surveys=SurveyCompanyModel.find_by_company_id_and_status(survey.id_company,"created")
             new_questions=survey.questions.split(",")
@@ -477,6 +486,8 @@ class Survey(Resource):
                             justification_file='')
                         answer.save_to_db()
                         news.append(str(answer.id))
+                import ipdb;ipdb.set_trace()
+                i.id_survey=survey.id
                 i.answers=','.join(news)
                 i.save_to_db()
 

@@ -112,7 +112,8 @@ class SurveyCompanyAll(Resource):
 "last_modified":item.last_date.strftime('%d/%m/%Y %H:%M'),
 "pub_date":pub_date,
 "version":item.version,
-"year":item.convocatoria_year})
+"year":item.convocatoria_year,
+"convocatoria":item.convocatoria})
              return results
     
     @jwt_required
