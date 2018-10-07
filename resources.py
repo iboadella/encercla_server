@@ -1,9 +1,10 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from models import UserModel,QuestionModel,SurveyModel,CompanyModel,SurveyCompanyModel,QuestionModelES,AnswerModel
-from run import db,app
+from run import db,app,mail
 from flask import Flask, jsonify, request
 from datetime import datetime
+from flask_mail import Message
 
 jwt = JWTManager(app)
 
@@ -21,6 +22,26 @@ def user_identity_lookup(user):
     return user.email
 
 
+class PasswordReset(Resource):
+    def get(self,email):
+        #import ipdb;ipdb.set_trace()
+        user=UserModel.find_by_username(email)
+        if not user:
+                  return {'message': 'Usuari no existeix'}
+        else:
+            access_token = create_access_token(identity = user)
+            message="http://localhost:8080/#/updateuser?token="+access_token
+            msg = Message(message, #\n,  http://localhost:8080/#/updateuser?token="+access_token,
+                sender="davidepi79@gmail.com",
+                recipients = [email])
+            try:
+                mail.send(msg)
+                return {
+                    'message': 'ok'
+                }
+            except Exception as e:
+                print(e)
+                return {'message': 'Something went wrong '+str(e)}, 500
 class UserRegistration(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -30,7 +51,6 @@ class UserRegistration(Resource):
         data = parser.parse_args()
         if UserModel.find_by_username(data['username']):
                   return {'message': 'Usuari ja existeix'}
-        
         new_user = UserModel(
             email = data['username'],
             password = UserModel.generate_hash(data['password']),
@@ -65,12 +85,13 @@ class AdminRegistration(Resource):
         parser.add_argument('admin', help = 'This field cannot be blank', required = True)
         data = parser.parse_args()
         type=0
-        if (data['admin']):
+        if (data['admin']=='True'):
+            
             type=1
 
         
         if UserModel.find_by_username(data['username']):
-                  return {'message': 'Usuari ja existeix'}
+                  return {'message': 'Usuari ja existeix'},400
         new_user = UserModel(
             email = data['username'],
             password = UserModel.generate_hash(data['password']),
@@ -503,8 +524,8 @@ import csv
 class loadDataQuestion(Resource):
 
     def get(self):
-        #tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
-        tsvin1 = open('/home/ericanoanira/projects/encercla_server/questionsES.txt', 'rt')
+        tsvin1 = open('/Users/dpiscia/python/encercla_server/data_questions.csv', 'rt')
+        #tsvin1 = open('/home/ericanoanira/projects/encercla_server/questionsES.txt', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
             new_question = QuestionModel(

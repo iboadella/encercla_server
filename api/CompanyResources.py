@@ -295,7 +295,7 @@ class SurveyCompany(Resource):
              if (data['score_future']!=None):
                 item.score_future= data['score_future']
              item.last_date = datetime.now(pytz.timezone('Europe/Amsterdam'))
-             if (item.pub_date==None):
+             if (data['pub_date']=='now'):
                  item.pub_date = datetime.now(pytz.timezone('Europe/Amsterdam'))
              try:
                 item.save_to_db()

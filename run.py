@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 #https://github.com/oleg-agapov/flask-jwt-auth
 from datetime import timedelta
+from flask_mail import Mail
 
 app = Flask(__name__,static_url_path='')
 @app.route('/static/<path:path>')
@@ -15,8 +16,19 @@ def send_js(path):
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
-
+mail_settings = {
+    "MAIL_SERVER": 'smtp.gmail.com',
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": 'davidepi79@gmail.com',
+    "MAIL_PASSWORD": 'sTandAvi'
+}
 api = Api(app)
+app.config.update(mail_settings)
+
+mail = Mail(app)
+
 cors = CORS(app, resources={r"*": {"origins": "*"}})
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -46,8 +58,8 @@ api.add_resource(resources.AllUsers, '/users')
 api.add_resource(resources.SecretResource, '/secret')
 
 api.add_resource(resources.Questions, '/questions','/questions/<id>')
-#api.add_resource(resources.loadDataQuestion, '/Loadquestions')
-#api.add_resource(resources.loadDataQuestionES, '/LoadquestionsES')
+api.add_resource(resources.loadDataQuestion, '/Loadquestions')
+api.add_resource(resources.loadDataQuestionES, '/LoadquestionsES')
 api.add_resource(resources.Survey,'/survey', '/survey/<id>')
 
 api.add_resource(resources.specificsurvey, '/specificsurvey')
@@ -71,5 +83,8 @@ api.add_resource(resources.LoggedIn, '/auth/loggedin')
 api.add_resource(CompanyResources.DuplicateSurveyCompany,'/duplicatecompanysurvey/<id>')
 api.add_resource(resources.User,'/user/<id>')
 api.add_resource(resources.UserAlone,'/user')
+api.add_resource(resources.PasswordReset,'/password/<email>')
+
+
 
 
