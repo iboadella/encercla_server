@@ -294,6 +294,7 @@ class DownloadDataExcel(Resource):
              #   for survey in surveys:
               #       answers = survey.answers.split(',')
                      data.append({"id":question.id,word:question.statement})
+        data.append({"id":'Total',word:'Score'})
         for company in companies:
             surveys=SurveyCompanyModel.find_by_company_id_and_status(id_company=company.id,status='submitted')
             for survey in surveys:
@@ -307,7 +308,9 @@ class DownloadDataExcel(Resource):
                        if (answer.id_question>23):
                           break
                        data[answer.id_question][survey.name_survey]=answer.score
-                       data[answer.id_question][survey.name_survey+'_futurible']=answer.score_future
+                       data[answer.id_question][survey.name_survey+'_futurible']=answer.score+answer.score_future
+                   data[24][survey.name_survey]=survey.score
+                   data[24][survey.name_survey+'_futurible']=survey.score_future
  
         try:
             
