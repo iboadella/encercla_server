@@ -203,7 +203,7 @@ class CompanyRegistration(Resource):
         data = parser.parse_args()
         
         if CompanyModel.find_by_nif(data['nif']):
-                  return {'message': 'Empresa amb aquest NIF esta registrada'}
+                  return {'message': 'Empresa amb aquest NIF esta registrada'},400
         new_company = CompanyModel(
             sector = data['sector'],
             subsector = data['subsector'],
@@ -524,7 +524,7 @@ import csv
 class loadDataQuestion(Resource):
 
     def get(self):
-        tsvin1 = open('/Users/dpiscia/python/encercla_server/data_questions.csv', 'rt')
+        tsvin1 = open('/home/ineditencercla/encercla_server/data_questions.csv', 'rt')
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/questionsES.txt', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
@@ -548,7 +548,7 @@ class loadDataQuestionES(Resource):
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
         
 
-        tsvin1 = open('questionsES_new.csv', 'rt')
+        tsvin1 = open('/home/ineditencercla/encercla_server/questionsES_new.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         
         for row in tsvin2:
@@ -568,7 +568,7 @@ class loadDataQuestionES(Resource):
 class specificsurvey(Resource):
 
     def get(self):
-        tsvin1 = open('/home/ericanoanira/projects/encercla_server/resumquestionarisespecifics.csv', 'rt')
+        tsvin1 = open('/home/ineditencercla/encercla_server/resumquestionarisespecifics.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
             new_question = SurveyModel(
