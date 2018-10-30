@@ -129,15 +129,17 @@ class SurveyCompanyAll(Resource):
         items=SurveyCompanyModel.find_by_company_id(id_company=data['id_company'])
         company=CompanyModel.find_by_id(id=data['id_company']) 
         #len(items)
-        #if len>1
-        #items[len(items)-1].version+1
-        #else version=1
+
+        if len(items)>0:
+           version=items[len(items)-1].version+1
+        else:
+           version=1
         
         convocatoria=False
         if (data['convocatoria']=='True'):
             convocatoria=True
 
-        version=len(items)+1
+        #version=len(items)+1
         new_surveycompany = SurveyCompanyModel(
             id_survey = data['id_survey'],
             name_survey = company.commercial_name+".v"+str(version)+'-'+datetime.utcnow().strftime('%Y'),
@@ -193,7 +195,10 @@ class DuplicateSurveyCompany(Resource):
 
 
         items=SurveyCompanyModel.find_by_company_id(id_company=user.id_company)
-        version=len(items)+1
+        if len(items)>0:
+           version=items[len(items)-1].version+1
+        else:
+           version=1
         
         company=CompanyModel.find_by_id(id=user.id_company) 
 

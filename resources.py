@@ -30,10 +30,11 @@ class PasswordReset(Resource):
                   return {'message': 'Usuari no existeix'}
         else:
             access_token = create_access_token(identity = user)
-            message="http://localhost:8080/#/updateuser?token="+access_token
-            msg = Message(message, #\n,  http://localhost:8080/#/updateuser?token="+access_token,
-                sender="davidepi79@gmail.com",
+            message="https://encercla.catcentral.cat:9443/#/updateuser?token="+access_token
+            msg = Message("Catcentral", #\n,  http://localhost:8080/#/updateuser?token="+access_token,
+                sender="encercla@catcentral.cat",
                 recipients = [email])
+            msg.html="<p><a href="+message+"> Link</a> per canviar de contrasenya</p> "
             try:
                 mail.send(msg)
                 return {
@@ -439,7 +440,9 @@ class Survey(Resource):
         else:
              #return jsonify(json_list = questions)
              return {"id":survey.id,"sector":survey.sector,"subsector":survey.subsector,"questions":survey.questions}
+     @jwt_required
      def post(self):
+        
         
         data = request.get_json(force=True)
         
@@ -524,7 +527,7 @@ import csv
 class loadDataQuestion(Resource):
 
     def get(self):
-        tsvin1 = open('/home/ineditencercla/encercla_server/data_questions.csv', 'rt')
+        tsvin1 = open('data_questions.csv', 'rt')
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/questionsES.txt', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
@@ -548,7 +551,7 @@ class loadDataQuestionES(Resource):
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
         
 
-        tsvin1 = open('/home/ineditencercla/encercla_server/questionsES_new.csv', 'rt')
+        tsvin1 = open('questionsES_new.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         
         for row in tsvin2:
@@ -568,8 +571,9 @@ class loadDataQuestionES(Resource):
 class specificsurvey(Resource):
 
     def get(self):
-        tsvin1 = open('/home/ineditencercla/encercla_server/resumquestionarisespecifics.csv', 'rt')
+        tsvin1 = open('resumquestionarisespecifics.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
+        SurveyModel.query.delete()
         for row in tsvin2:
             new_question = SurveyModel(
                 sector=row[0],
@@ -721,4 +725,16 @@ class UserAlone(Resource):
                 'message': 'User {} was update'.format( user.email),
             }
         except:
-           return {'message': 'Something went wrong'}, 500    
+           return {'message': 'Something went wrong'}, 500  
+class debug(Resource):
+    def get(self):
+        surveys=SurveyModel.find_all() 
+        data=[]
+        for survey in surveys:
+            data.append({"sector":survey.sector, "sub":survey.subsector})
+
+        return {"data":data}
+
+
+
+

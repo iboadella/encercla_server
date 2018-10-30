@@ -51,8 +51,8 @@ class CompanyModel(db.Model):
     name_surname = db.Column(db.String(50), nullable = False)
     telephone_number = db.Column(db.String(50), nullable = False)
     description = db.Column(db.String(500), nullable = False)
-    comarca = db.Column(db.String(50), nullable = False)
-    territori_leader = db.Column(db.String(50), nullable = False)
+    comarca = db.Column(db.String(200), nullable = False)
+    territori_leader = db.Column(db.String(200), nullable = False)
     number_workers = db.Column (db.Integer,nullable = False)
     
     def save_to_db(self):
@@ -72,15 +72,15 @@ class QuestionModel(db.Model):
     __tablename__ = 'questions'
 
     id = db.Column(db.Integer, primary_key = True)
-    statement =db.Column(db.String(200), nullable = False)
-    strategy=db.Column(db.String(200), nullable = False)
-    ld_option_1 = db.Column(db.String(220), nullable = False)
-    ld_option_2 = db.Column(db.String(220), nullable = False)
-    ld_option_3 = db.Column(db.String(220), nullable = False)
-    ld_option_4 = db.Column(db.String(220), nullable = False)
-    futurible = db.Column(db.String(220), nullable = False)
-    advise = db.Column(db.String(220), nullable = False)
-    proposta_millora=db.Column(db.String(220), nullable = False)
+    statement =db.Column(db.String(500), nullable = False)
+    strategy=db.Column(db.String(500), nullable = False)
+    ld_option_1 = db.Column(db.String(500), nullable = False)
+    ld_option_2 = db.Column(db.String(500), nullable = False)
+    ld_option_3 = db.Column(db.String(500), nullable = False)
+    ld_option_4 = db.Column(db.String(500), nullable = False)
+    futurible = db.Column(db.String(500), nullable = False)
+    advise = db.Column(db.String(500), nullable = False)
+    proposta_millora=db.Column(db.String(500), nullable = False)
     more_information= db.Column(db.String(500), nullable = False)
     
     def save_to_db(self):
@@ -103,15 +103,15 @@ class QuestionModelES(db.Model):
     __tablename__ = 'questionsES'
 
     id = db.Column(db.Integer, primary_key = True)
-    statement =db.Column(db.String(200), nullable = False)
-    strategy=db.Column(db.String(200), nullable = False)
-    ld_option_1 = db.Column(db.String(220), nullable = False)
-    ld_option_2 = db.Column(db.String(220), nullable = False)
-    ld_option_3 = db.Column(db.String(220), nullable = False)
-    ld_option_4 = db.Column(db.String(220), nullable = False)
-    futurible = db.Column(db.String(220), nullable = False)
-    advise = db.Column(db.String(220), nullable = False)
-    proposta_millora=db.Column(db.String(220), nullable = False)
+    statement =db.Column(db.String(500), nullable = False)
+    strategy=db.Column(db.String(500), nullable = False)
+    ld_option_1 = db.Column(db.String(500), nullable = False)
+    ld_option_2 = db.Column(db.String(500), nullable = False)
+    ld_option_3 = db.Column(db.String(500), nullable = False)
+    ld_option_4 = db.Column(db.String(500), nullable = False)
+    futurible = db.Column(db.String(500), nullable = False)
+    advise = db.Column(db.String(500), nullable = False)
+    proposta_millora=db.Column(db.String(500), nullable = False)
     more_information= db.Column(db.String(500), nullable = False)
     
     def save_to_db(self):
