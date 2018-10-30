@@ -81,7 +81,7 @@ class QuestionModel(db.Model):
     futurible = db.Column(db.String(500), nullable = False)
     advise = db.Column(db.String(500), nullable = False)
     proposta_millora=db.Column(db.String(500), nullable = False)
-    more_information= db.Column(db.String(500), nullable = False)
+    more_information= db.Column(db.String(2000), nullable = False)
     
     def save_to_db(self):
         db.session.add(self)
@@ -112,7 +112,7 @@ class QuestionModelES(db.Model):
     futurible = db.Column(db.String(500), nullable = False)
     advise = db.Column(db.String(500), nullable = False)
     proposta_millora=db.Column(db.String(500), nullable = False)
-    more_information= db.Column(db.String(500), nullable = False)
+    more_information= db.Column(db.String(2000), nullable = False)
     
     def save_to_db(self):
         db.session.add(self)
