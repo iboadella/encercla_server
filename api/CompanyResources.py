@@ -283,7 +283,8 @@ class SurveyCompany(Resource):
 "pub_date":pub_date,
 "version":item.version,
 "questions":survey.questions,
-"answers":item.answers}
+"answers":item.answers,
+"convocatoria":item.convocatoria_year}
              
              return {'data':results}
     @jwt_required

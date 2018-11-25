@@ -527,7 +527,7 @@ import csv
 class loadDataQuestion(Resource):
 
     def get(self):
-        tsvin1 = open('data_questions.csv', 'rt')
+        tsvin1 = open('data_questions_new_19112018.csv', 'rt')
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/questionsES.txt', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         for row in tsvin2:
@@ -551,7 +551,7 @@ class loadDataQuestionES(Resource):
         #tsvin1 = open('/home/ericanoanira/projects/encercla_server/data_questions.csv', 'rt')
         
 
-        tsvin1 = open('questionsES_new.csv', 'rt')
+        tsvin1 = open('questionsES_new_19112018.csv', 'rt')
         tsvin2 = csv.reader(tsvin1, delimiter='\t')
         
         for row in tsvin2:
