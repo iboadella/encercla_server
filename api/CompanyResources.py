@@ -201,9 +201,12 @@ class DuplicateSurveyCompany(Resource):
            version=1
         
         company=CompanyModel.find_by_id(id=user.id_company) 
-
+     
         if (company.duplication_survey==False):
             return {'message':'No es pot duplicar el qüestionari'},500   
+
+
+
         new_surveycompany = SurveyCompanyModel(
             id_survey = item.id_survey,
             name_survey = company.commercial_name+".v"+str(version)+'-'+datetime.utcnow().strftime('%Y'),
@@ -214,8 +217,16 @@ class DuplicateSurveyCompany(Resource):
             last_date = datetime.now(pytz.timezone('Europe/Amsterdam')),
             score=0,
             score_future=0,
-            file_dari=item.file_dari
+            file_dari=item.file_dari,
+            convocatoria=item.convocatoria,
+            convocatoria_year=item.convocatoria_year
         )
+
+
+
+
+
+
         try:
             
             answers= [int(s) for s in item.answers.split(',')]
@@ -247,6 +258,18 @@ class DuplicateSurveyCompany(Resource):
             new_surveycompany.answers=','.join([str(i) for i in answers_id])
                      
             new_surveycompany.save_to_db()
+            
+            if (item.file_dari!=''):
+                filename_survey = app.config['UPLOAD_FOLDER'] + '/surveycompany/' \
+                    + str(item.id) +'/'+ item.file_dari
+                new_filename_survey = app.config['UPLOAD_FOLDER'] + '/surveycompany/' + str(new_surveycompany.id) +'/'+ new_surveycompany.file_dari
+                if not os.path.exists(os.path.dirname(new_filename_survey)):
+                            try:
+                                os.makedirs(os.path.dirname(new_filename_survey))
+                            except OSError as exc:
+                                return {'message': 'Something went wrong '+str(exc)}, 500
+
+                copyfile(filename_survey,new_filename_survey)
             return {
                 'message': 'Survey company '+str(new_surveycompany.id)+' was created'
             }
